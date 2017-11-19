@@ -89,7 +89,7 @@ class NavigableList extends Component {
   }
 
   getLeaf() {
-    if (this._childrens.length === 0)
+    if (this._children.length === 0)
       return null;
 
     const child = this._children[this._getDefaultChild()];
