@@ -34,6 +34,11 @@ class NavigableList extends Component {
   }
 
   _focus(childIndex) {
+    if (this._focusedChild == childIndex) {
+      return;
+    }
+    
+    this._updateChildBlur();
     this._focusedChild = childIndex;
     this._updateParentFocus();
   }
@@ -45,6 +50,17 @@ class NavigableList extends Component {
     if (this._parent.getFocusedIndex() !== this._parentIndex) {
       this._parent._focus(this._parentIndex);
     }
+  }
+
+  _updateChildBlur() {
+    if (this._focusedChild !== null) {
+      const child = this._children[this._focusedChild];
+      if (child.isContainer()) {
+        child._updateChildBlur();
+      }
+    }
+
+    this._focusedChild = null;
   }
 
   getFocusedIndex() {
