@@ -10,9 +10,9 @@ class Grid extends NavigableList {
 
     let elemIndex = null;
     if (direction === 'up') {
-      elemIndex = this.previousChildren();
+      elemIndex = this.previousChild();
     } else if (direction === 'down') {
-      elemIndex = this.nextChildren();
+      elemIndex = this.nextChild();
     }
 
     if (elemIndex === null) {

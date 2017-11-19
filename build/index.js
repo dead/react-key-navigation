@@ -451,7 +451,7 @@ exports.default = NavigableList;
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- *
+ * 
  */
 
 function makeEmptyFunction(arg) {
@@ -875,9 +875,9 @@ var Grid = function (_NavigableList) {
 
       var elemIndex = null;
       if (direction === 'up') {
-        elemIndex = this.previousChildren();
+        elemIndex = this.previousChild();
       } else if (direction === 'down') {
-        elemIndex = this.nextChildren();
+        elemIndex = this.nextChild();
       }
 
       if (elemIndex === null) {
