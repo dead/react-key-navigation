@@ -18,7 +18,7 @@ class HorizontalList extends NavigableList {
     }
 
     if (this._children[elemIndex].isContainer()) {
-      return this._children[elemIndex].getNextFocus(direction);
+      return this._children[elemIndex].getLeaf();
     }
 
     return {
