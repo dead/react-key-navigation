@@ -335,6 +335,11 @@ var NavigableList = function (_Component) {
   }, {
     key: '_focus',
     value: function _focus(childIndex) {
+      if (this._focusedChild == childIndex) {
+        return;
+      }
+
+      this._updateChildBlur();
       this._focusedChild = childIndex;
       this._updateParentFocus();
     }
@@ -346,6 +351,18 @@ var NavigableList = function (_Component) {
       if (this._parent.getFocusedIndex() !== this._parentIndex) {
         this._parent._focus(this._parentIndex);
       }
+    }
+  }, {
+    key: '_updateChildBlur',
+    value: function _updateChildBlur() {
+      if (this._focusedChild !== null) {
+        var child = this._children[this._focusedChild];
+        if (child.isContainer()) {
+          child._updateChildBlur();
+        }
+      }
+
+      this._focusedChild = null;
     }
   }, {
     key: 'getFocusedIndex',
@@ -649,7 +666,7 @@ var HorizontalList = function (_NavigableList) {
       }
 
       if (this._children[elemIndex].isContainer()) {
-        return this._children[elemIndex].getNextFocus(direction);
+        return this._children[elemIndex].getLeaf();
       }
 
       return {
