@@ -64,7 +64,7 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 17);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -259,12 +259,6 @@ process.umask = function() { return 0; };
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports) {
-
-module.exports = require("react");
-
-/***/ }),
-/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -276,15 +270,17 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = __webpack_require__(1);
+var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _propTypes = __webpack_require__(5);
+var _propTypes = __webpack_require__(9);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -292,135 +288,123 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var NavigableList = function (_Component) {
-  _inherits(NavigableList, _Component);
+var Focusable = function (_Component) {
+  _inherits(Focusable, _Component);
 
-  function NavigableList(props, context) {
-    _classCallCheck(this, NavigableList);
+  function Focusable(props, context) {
+    _classCallCheck(this, Focusable);
 
-    var _this = _possibleConstructorReturn(this, (NavigableList.__proto__ || Object.getPrototypeOf(NavigableList)).call(this, props, context));
+    var _this = _possibleConstructorReturn(this, (Focusable.__proto__ || Object.getPrototypeOf(Focusable)).call(this, props, context));
 
-    _this._focusedChild = null;
-    _this._parentIndex = 0;
-    _this._children = [];
-    _this._parent = null;
-    _this._mainComponent = null;
-
-
-    _this._parent = _this.context.parentList;
-    _this._mainComponent = _this.context.navigationComponent;
-
-    _this._mainComponent.register(_this);
-
-    if (_this.props.navDefault) {
-      _this._mainComponent.setDefault(_this);
-    }
-
-    _this._addToParent();
+    _this.treePath = [];
+    _this.children = [];
+    _this.indexInParent = 0;
+    _this.focused = null;
     return _this;
   }
 
-  _createClass(NavigableList, [{
-    key: '_addToParent',
-    value: function _addToParent() {
-      if (this._parent) {
-        this._parentIndex = this._parent.addChild(this);
-      }
+  _createClass(Focusable, [{
+    key: 'isContainer',
+    value: function isContainer() {
+      return this.children.length > 0;
     }
   }, {
-    key: '_getDefaultChild',
-    value: function _getDefaultChild() {
-      return 0;
-    }
-  }, {
-    key: '_focus',
-    value: function _focus(childIndex) {
-      if (this._focusedChild == childIndex) {
-        return;
-      }
-
-      this._updateChildBlur();
-      this._focusedChild = childIndex;
-      this._updateParentFocus();
-    }
-  }, {
-    key: '_updateParentFocus',
-    value: function _updateParentFocus() {
-      if (!this._parent) return;
-
-      if (this._parent.getFocusedIndex() !== this._parentIndex) {
-        this._parent._focus(this._parentIndex);
-      }
-    }
-  }, {
-    key: '_updateChildBlur',
-    value: function _updateChildBlur() {
-      if (this._focusedChild !== null) {
-        var child = this._children[this._focusedChild];
-        if (child.isContainer()) {
-          child._updateChildBlur();
-        }
-      }
-
-      this._focusedChild = null;
-    }
-  }, {
-    key: 'getFocusedIndex',
-    value: function getFocusedIndex() {
-      return this._focusedChild;
+    key: 'getParent',
+    value: function getParent() {
+      return this.context.parentFocusable;
     }
   }, {
     key: 'addChild',
-    value: function addChild(component) {
-      this._children.push(component);
-      return this._children.length - 1;
+    value: function addChild(child) {
+      //console.log(child);
+      this.children.push(child);
+      return this.children.length - 1;
+    }
+  }, {
+    key: 'removeChild',
+    value: function removeChild(child) {
+      this.children.splice(child.indexInParent, 1);
+
+      if (this.props.rootNode) {
+        var currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
+        var index = currentFocusedPath.indexOf(child);
+
+        if (index >= 0) {
+          var next = currentFocusedPath[index - 1].getDefaultFocus();
+          this.context.navigationComponent.focus(next);
+        }
+      }
+    }
+  }, {
+    key: 'getDefaultChild',
+    value: function getDefaultChild() {
+      return 0;
+    }
+  }, {
+    key: 'getNextFocusFrom',
+    value: function getNextFocusFrom(direction) {
+      return this.getNextFocus(direction, this.indexInParent);
     }
   }, {
     key: 'getNextFocus',
-    value: function getNextFocus(direction) {
-      if (this._parent) return this._parent.getNextFocus(direction);
-      return null;
+    value: function getNextFocus(direction, focusedIndex) {
+      if (!this.getParent()) {
+        return null;
+      }
+
+      return this.getParent().getNextFocus(direction, focusedIndex);
+    }
+  }, {
+    key: 'getDefaultFocus',
+    value: function getDefaultFocus() {
+      if (this.isContainer()) return this.children[this.getDefaultChild()].getDefaultFocus();
+
+      return this;
+    }
+  }, {
+    key: 'buildTreePath',
+    value: function buildTreePath() {
+      this.treePath.unshift(this);
+
+      var parent = this.getParent();
+      while (parent) {
+        this.treePath.unshift(parent);
+        parent = parent.getParent();
+      }
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {
+      var _this2 = this;
+
+      this.treePath.map(function (component) {
+        if (component.props.onFocus) component.props.onFocus(_this2.indexInParent);
+      });
+    }
+  }, {
+    key: 'blur',
+    value: function blur() {
+      if (this.props.onBlur) {
+        this.props.onBlur(this.indexInParent);
+      }
     }
   }, {
     key: 'nextChild',
-    value: function nextChild() {
-      if (this._focusedChild === null) return this._getDefaultChild();
-
-      if (this._children.length === this._focusedChild + 1) {
+    value: function nextChild(focusedIndex) {
+      if (this.children.length === focusedIndex + 1) {
         return null;
       }
 
-      return this._focusedChild + 1;
+      return this.children[focusedIndex + 1];
     }
   }, {
     key: 'previousChild',
-    value: function previousChild() {
-      if (this._focusedChild === null) return this._getDefaultChild();
-
-      if (this._focusedChild - 1 < 0) {
+    value: function previousChild(focusedIndex) {
+      if (focusedIndex - 1 < 0) {
         return null;
       }
 
-      return this._focusedChild - 1;
-    }
-  }, {
-    key: 'isContainer',
-    value: function isContainer() {
-      return true;
-    }
-  }, {
-    key: 'getLeaf',
-    value: function getLeaf() {
-      if (this._children.length === 0) return null;
-
-      var child = this._children[this._getDefaultChild()];
-      if (child.isContainer()) return child.getLeaf();
-
-      return {
-        parent: this,
-        elementIndex: this._getDefaultChild(),
-        element: child
-      };
+      return this.children[focusedIndex - 1];
     }
 
     // React Methods
@@ -428,32 +412,72 @@ var NavigableList = function (_Component) {
   }, {
     key: 'getChildContext',
     value: function getChildContext() {
-      return { parentList: this };
+      return { parentFocusable: this };
+    }
+  }, {
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      if (this.props.rootNode) {
+        this.context.navigationComponent.setRoot(this);
+      }
+
+      if (this.context.parentFocusable) {
+        this.buildTreePath();
+        this.indexInParent = this.getParent().addChild(this);
+      }
+
+      if (this.props.navDefault) {
+        this.context.navigationComponent.setDefault(this);
+      }
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      if (this.context.parentFocusable) {
+        this.getParent().removeChild(this);
+      }
     }
   }, {
     key: 'render',
     value: function render() {
-      return _react2.default.createElement(
-        'div',
-        null,
-        this.props.children
-      );
+      var _props = this.props,
+          focused = _props.focused,
+          rootNode = _props.rootNode,
+          navDefault = _props.navDefault,
+          onFocus = _props.onFocus,
+          onBlur = _props.onBlur,
+          props = _objectWithoutProperties(_props, ['focused', 'rootNode', 'navDefault', 'onFocus', 'onBlur']);
+
+      return _react2.default.createElement('span', props);
     }
   }]);
 
-  return NavigableList;
+  return Focusable;
 }(_react.Component);
 
-NavigableList.contextTypes = {
-  parentList: _propTypes2.default.object,
+Focusable.contextTypes = {
+  parentFocusable: _propTypes2.default.object,
   navigationComponent: _propTypes2.default.object
 };
 
-NavigableList.childContextTypes = {
-  parentList: _propTypes2.default.object
+Focusable.childContextTypes = {
+  parentFocusable: _propTypes2.default.object
 };
 
-exports.default = NavigableList;
+Focusable.defaultProps = {
+  rootNode: false,
+  navDefault: false,
+  onFocus: _propTypes2.default.function,
+  onBlur: _propTypes2.default.function
+};
+
+exports.default = Focusable;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
+module.exports = require("react");
 
 /***/ }),
 /* 3 */
@@ -561,41 +585,6 @@ module.exports = invariant;
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- */
-
-if (process.env.NODE_ENV !== 'production') {
-  var REACT_ELEMENT_TYPE = (typeof Symbol === 'function' &&
-    Symbol.for &&
-    Symbol.for('react.element')) ||
-    0xeac7;
-
-  var isValidElement = function(object) {
-    return typeof object === 'object' &&
-      object !== null &&
-      object.$$typeof === REACT_ELEMENT_TYPE;
-  };
-
-  // By explicitly using `prop-types` you are opting into new development behavior.
-  // http://fb.me/prop-types-in-prod
-  var throwOnDirectAccess = true;
-  module.exports = __webpack_require__(16)(isValidElement, throwOnDirectAccess);
-} else {
-  // By explicitly using `prop-types` you are opting into new production behavior.
-  // http://fb.me/prop-types-in-prod
-  module.exports = __webpack_require__(15)();
-}
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
 "use strict";
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -612,6 +601,92 @@ module.exports = ReactPropTypesSecret;
 
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+var _react = __webpack_require__(2);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _Focusable2 = __webpack_require__(1);
+
+var _Focusable3 = _interopRequireDefault(_Focusable2);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var HorizontalList = function (_Focusable) {
+  _inherits(HorizontalList, _Focusable);
+
+  function HorizontalList() {
+    _classCallCheck(this, HorizontalList);
+
+    return _possibleConstructorReturn(this, (HorizontalList.__proto__ || Object.getPrototypeOf(HorizontalList)).apply(this, arguments));
+  }
+
+  _createClass(HorizontalList, [{
+    key: 'getNextFocus',
+    value: function getNextFocus(direction, focusedIndex) {
+      if (direction !== 'left' && direction !== 'right') {
+        return _get(HorizontalList.prototype.__proto__ || Object.getPrototypeOf(HorizontalList.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
+      }
+
+      var nextFocus = null;
+      if (direction === 'left') {
+        nextFocus = this.previousChild(focusedIndex);
+      } else if (direction === 'right') {
+        nextFocus = this.nextChild(focusedIndex);
+      }
+
+      if (!nextFocus) {
+        return _get(HorizontalList.prototype.__proto__ || Object.getPrototypeOf(HorizontalList.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
+      }
+
+      if (nextFocus.isContainer()) {
+        return nextFocus.getDefaultFocus();
+      }
+
+      return nextFocus;
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          focused = _props.focused,
+          rootNode = _props.rootNode,
+          navDefault = _props.navDefault,
+          onFocus = _props.onFocus,
+          onBlur = _props.onBlur,
+          props = _objectWithoutProperties(_props, ['focused', 'rootNode', 'navDefault', 'onFocus', 'onBlur']);
+
+      return _react2.default.createElement('div', props);
+    }
+  }]);
+
+  return HorizontalList;
+}(_Focusable3.default);
+
+exports.default = HorizontalList;
+
+/***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -626,9 +701,9 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _NavigableList2 = __webpack_require__(2);
+var _Focusable2 = __webpack_require__(1);
 
-var _NavigableList3 = _interopRequireDefault(_NavigableList2);
+var _Focusable3 = _interopRequireDefault(_Focusable2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -638,49 +713,45 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var HorizontalList = function (_NavigableList) {
-  _inherits(HorizontalList, _NavigableList);
+var VerticalList = function (_Focusable) {
+  _inherits(VerticalList, _Focusable);
 
-  function HorizontalList() {
-    _classCallCheck(this, HorizontalList);
+  function VerticalList() {
+    _classCallCheck(this, VerticalList);
 
-    return _possibleConstructorReturn(this, (HorizontalList.__proto__ || Object.getPrototypeOf(HorizontalList)).apply(this, arguments));
+    return _possibleConstructorReturn(this, (VerticalList.__proto__ || Object.getPrototypeOf(VerticalList)).apply(this, arguments));
   }
 
-  _createClass(HorizontalList, [{
+  _createClass(VerticalList, [{
     key: 'getNextFocus',
-    value: function getNextFocus(direction) {
-      if (direction !== 'left' && direction !== 'right') {
-        return _get(HorizontalList.prototype.__proto__ || Object.getPrototypeOf(HorizontalList.prototype), 'getNextFocus', this).call(this, direction);
+    value: function getNextFocus(direction, focusedIndex) {
+      if (direction !== 'up' && direction !== 'down') {
+        return _get(VerticalList.prototype.__proto__ || Object.getPrototypeOf(VerticalList.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
       }
 
-      var elemIndex = null;
-      if (direction === 'left') {
-        elemIndex = this.previousChild();
-      } else if (direction === 'right') {
-        elemIndex = this.nextChild();
+      var nextFocus = null;
+      if (direction === 'up') {
+        nextFocus = this.previousChild(focusedIndex);
+      } else if (direction === 'down') {
+        nextFocus = this.nextChild(focusedIndex);
       }
 
-      if (elemIndex === null) {
-        return _get(HorizontalList.prototype.__proto__ || Object.getPrototypeOf(HorizontalList.prototype), 'getNextFocus', this).call(this, direction);
+      if (!nextFocus) {
+        return _get(VerticalList.prototype.__proto__ || Object.getPrototypeOf(VerticalList.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
       }
 
-      if (this._children[elemIndex].isContainer()) {
-        return this._children[elemIndex].getLeaf();
+      if (nextFocus.isContainer()) {
+        return nextFocus.getDefaultFocus();
       }
 
-      return {
-        parent: this,
-        elementIndex: elemIndex,
-        element: this._children[elemIndex]
-      };
+      return nextFocus;
     }
   }]);
 
-  return HorizontalList;
-}(_NavigableList3.default);
+  return VerticalList;
+}(_Focusable3.default);
 
-exports.default = HorizontalList;
+exports.default = VerticalList;
 
 /***/ }),
 /* 8 */
@@ -755,89 +826,36 @@ module.exports = warning;
 /* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
+if (process.env.NODE_ENV !== 'production') {
+  var REACT_ELEMENT_TYPE = (typeof Symbol === 'function' &&
+    Symbol.for &&
+    Symbol.for('react.element')) ||
+    0xeac7;
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
+  var isValidElement = function(object) {
+    return typeof object === 'object' &&
+      object !== null &&
+      object.$$typeof === REACT_ELEMENT_TYPE;
+  };
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+  // By explicitly using `prop-types` you are opting into new development behavior.
+  // http://fb.me/prop-types-in-prod
+  var throwOnDirectAccess = true;
+  module.exports = __webpack_require__(15)(isValidElement, throwOnDirectAccess);
+} else {
+  // By explicitly using `prop-types` you are opting into new production behavior.
+  // http://fb.me/prop-types-in-prod
+  module.exports = __webpack_require__(14)();
+}
 
-var _react = __webpack_require__(1);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _propTypes = __webpack_require__(5);
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Focusable = function (_Component) {
-  _inherits(Focusable, _Component);
-
-  function Focusable(props, context) {
-    _classCallCheck(this, Focusable);
-
-    var _this = _possibleConstructorReturn(this, (Focusable.__proto__ || Object.getPrototypeOf(Focusable)).call(this, props, context));
-
-    if (!_this.context.parentList) {
-      throw new Error('You need a container (Vertical or Horizontal List)');
-    }
-
-    _this._parent = _this.context.parentList;
-    _this._mainComponent = _this.context.navigationComponent;
-    _this._addToParent();
-    return _this;
-  }
-
-  _createClass(Focusable, [{
-    key: '_addToParent',
-    value: function _addToParent() {
-      this._parent.addChild(this);
-    }
-  }, {
-    key: 'getParentContainer',
-    value: function getParentContainer() {
-      return this._parent;
-    }
-  }, {
-    key: 'isContainer',
-    value: function isContainer() {
-      return false;
-    }
-
-    // React Methods
-
-  }, {
-    key: 'render',
-    value: function render() {
-      return _react2.default.createElement(
-        'span',
-        null,
-        this.props.children
-      );
-    }
-  }]);
-
-  return Focusable;
-}(_react.Component);
-
-Focusable.contextTypes = {
-  parentList: _propTypes2.default.object,
-  navigationComponent: _propTypes2.default.object
-};
-
-Focusable.defaultProps = {};
-
-exports.default = Focusable;
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
 /* 10 */
@@ -854,15 +872,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _react = __webpack_require__(1);
+var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _NavigableList2 = __webpack_require__(2);
+var _Focusable2 = __webpack_require__(1);
 
-var _NavigableList3 = _interopRequireDefault(_NavigableList2);
+var _Focusable3 = _interopRequireDefault(_Focusable2);
 
-var _HorizontalList = __webpack_require__(7);
+var _HorizontalList = __webpack_require__(6);
 
 var _HorizontalList2 = _interopRequireDefault(_HorizontalList);
 
@@ -874,8 +892,8 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var Grid = function (_NavigableList) {
-  _inherits(Grid, _NavigableList);
+var Grid = function (_Focusable) {
+  _inherits(Grid, _Focusable);
 
   function Grid() {
     _classCallCheck(this, Grid);
@@ -885,47 +903,41 @@ var Grid = function (_NavigableList) {
 
   _createClass(Grid, [{
     key: 'getNextFocus',
-    value: function getNextFocus(direction) {
+    value: function getNextFocus(direction, focusedIndex) {
       if (direction !== 'up' && direction !== 'down') {
-        return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction);
+        return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
       }
 
-      var elemIndex = null;
+      var nextFocus = null;
       if (direction === 'up') {
-        elemIndex = this.previousChild();
+        nextFocus = this.previousChild(focusedIndex);
       } else if (direction === 'down') {
-        elemIndex = this.nextChild();
+        nextFocus = this.nextChild(focusedIndex);
       }
 
-      if (elemIndex === null) {
-        return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction);
+      if (!nextFocus) {
+        return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
       }
 
-      if (!this._children[elemIndex].isContainer()) {
+      if (!nextFocus.isContainer()) {
         return null;
       }
 
-      var row = elemIndex;
-      var column = this._focusedChild !== null ? this._children[this._focusedChild]._focusedChild : 0;
+      var currentPath = this.context.navigationComponent.currentFocusedPath;
 
-      if (row === null || column === null) {
-        return null;
+      var row = nextFocus.indexInParent;
+      var column = currentPath[currentPath.indexOf(this) + 2].indexInParent;
+
+      if (this.children[row].children.length <= column) {
+        column = this.children[row].children.length;
       }
 
-      if (this._children[row]._children.length <= column) {
-        column = this._children[row]._children.length;
-      }
-
-      var next = this._children[row]._children[column];
+      var next = this.children[row].children[column];
       if (next.isContainer()) {
-        return next.getLeaf();
+        return next.getDefaultFocus();
       }
 
-      return {
-        parent: this,
-        elementIndex: column,
-        element: next
-      };
+      return next;
     }
   }, {
     key: 'render',
@@ -960,7 +972,7 @@ var Grid = function (_NavigableList) {
   }]);
 
   return Grid;
-}(_NavigableList3.default);
+}(_Focusable3.default);
 
 Grid.defaultProps = {
   columns: 0,
@@ -982,13 +994,17 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = __webpack_require__(1);
+var _react = __webpack_require__(2);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _propTypes = __webpack_require__(5);
+var _propTypes = __webpack_require__(9);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
+
+var _VerticalList = __webpack_require__(7);
+
+var _VerticalList2 = _interopRequireDefault(_VerticalList);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -998,10 +1014,17 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-/*
-This component listen the window keys events.
-*/
+var reverseDirection = {
+  'up': 'down',
+  'down': 'up',
+  'left': 'right',
+  'right': 'left'
 
+  /*
+  This component listen the window keys events.
+  */
+
+};
 var Navigation = function (_Component) {
   _inherits(Navigation, _Component);
 
@@ -1016,7 +1039,7 @@ var Navigation = function (_Component) {
       args[_key] = arguments[_key];
     }
 
-    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Navigation.__proto__ || Object.getPrototypeOf(Navigation)).call.apply(_ref, [this].concat(args))), _this), _this._currentFocusedElement = null, _this._lastFocusedElement = null, _this._pause = false, _this._default = null, _this.onKeyDown = function (evt) {
+    return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Navigation.__proto__ || Object.getPrototypeOf(Navigation)).call.apply(_ref, [this].concat(args))), _this), _this.currentFocusedPath = null, _this.lastFocusedPath = null, _this.lastDirection = null, _this.pause = false, _this.default = null, _this.root = null, _this.onKeyDown = function (evt) {
       if (_this._pause || evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
         return;
       }
@@ -1031,8 +1054,8 @@ var Navigation = function (_Component) {
 
       if (!direction) {
         if (evt.keyCode === _this.props.keyMapping['enter']) {
-          if (_this._currentFocusedElement) {
-            if (!_this.fireEvent(_this._currentFocusedElement, 'enter-down')) {
+          if (_this.currentFocusedPath) {
+            if (!_this.fireEvent(_this.currentFocusedPath, 'enter-down')) {
               return preventDefault();
             }
           }
@@ -1040,13 +1063,13 @@ var Navigation = function (_Component) {
         return;
       }
 
-      var currentFocusedElement = _this._currentFocusedElement;
+      var currentFocusedPath = _this.currentFocusedPath;
 
-      if (!currentFocusedElement) {
-        currentFocusedElement = _this._lastFocusedElement;
+      if (!currentFocusedPath) {
+        currentFocusedPath = _this.lastFocusedPath;
 
-        if (!currentFocusedElement) {
-          _this.focusDefault();
+        if (!currentFocusedPath) {
+          //this.focusDefault();
           return preventDefault();
         }
       }
@@ -1056,12 +1079,9 @@ var Navigation = function (_Component) {
         cause: 'keydown'
       };
 
-      if (_this.fireEvent(currentFocusedElement, 'willmove', willmoveProperties)) {
-        _this.focusNext(direction, currentFocusedElement);
-      }
-
+      _this.focusNext(direction, currentFocusedPath);
       return preventDefault();
-    }, _this.onKeyUp = function (evt) {}, _temp), _possibleConstructorReturn(_this, _ret);
+    }, _temp), _possibleConstructorReturn(_this, _ret);
   }
 
   _createClass(Navigation, [{
@@ -1072,10 +1092,10 @@ var Navigation = function (_Component) {
           if (element.props.onWillMove) element.props.onWillMove(evtProps);
           break;
         case 'onfocus':
-          if (element.props.onFocus) element.props.onFocus(evtProps);
+          element.focus(evtProps);
           break;
         case 'onblur':
-          if (element.props.onBlur) element.props.onBlur(evtProps);
+          element.blur(evtProps);
           break;
         case 'enter-down':
           if (element.props.onEnterDown) element.props.onEnterDown(evtProps);
@@ -1088,55 +1108,76 @@ var Navigation = function (_Component) {
     }
   }, {
     key: 'focusNext',
-    value: function focusNext(direction, element) {
-      var next = element.getParentContainer().getNextFocus(direction);
+    value: function focusNext(direction, focusedPath) {
+      var next = null;
+
+      if (direction === reverseDirection[this.lastDirection] && this.lastFocusedPath !== null) {
+        next = this.getLastFromPath(this.lastFocusedPath);
+      } else {
+        next = this.getLastFromPath(focusedPath).getNextFocusFrom(direction);
+      }
+
       if (next) {
+        this.lastDirection = direction;
         this.focus(next);
       }
     }
   }, {
-    key: 'focusDefault',
-    value: function focusDefault() {
-      if (!this._default) return;
+    key: 'blur',
+    value: function blur(nextTree) {
+      if (this.currentFocusedPath === null) return;
 
-      var elementObj = this._default.getLeaf();
-      this.focus(elementObj);
+      var changeNode = null;
+
+      for (var i = 0; i < Math.min(nextTree.length, this.currentFocusedPath.length); ++i) {
+        if (nextTree[i] !== this.currentFocusedPath[i]) {
+          changeNode = i;
+          break;
+        }
+      }
+
+      if (changeNode === null) return;
+
+      for (var _i = changeNode; _i < this.currentFocusedPath.length; ++_i) {
+        this.currentFocusedPath[_i].blur();
+      }
     }
   }, {
     key: 'focus',
-    value: function focus(elementObj) {
-      if (!elementObj) return;
+    value: function focus(next) {
+      this.blur(next.treePath);
+      next.focus();
 
-      this.blurCurrent();
-      var element = elementObj.element;
-      element.getParentContainer()._focus(elementObj.elementIndex);
-      this.fireEvent(element, 'onfocus');
-      this._changeFocus(element);
+      var lastPath = this.currentFocusedPath;
+      this.currentFocusedPath = next.treePath;
+      this.lastFocusedPath = lastPath;
     }
   }, {
-    key: 'blurCurrent',
-    value: function blurCurrent() {
-      if (this._currentFocusedElement === null) return;
-
-      this.fireEvent(this._currentFocusedElement, 'onblur');
+    key: 'getLastFromPath',
+    value: function getLastFromPath(path) {
+      return path[path.length - 1];
     }
   }, {
-    key: '_changeFocus',
-    value: function _changeFocus(to) {
-      var last = this._currentFocusedElement;
-      this._currentFocusedElement = to;
-      this._lastFocusedElement = last;
+    key: 'focusDefault',
+    value: function focusDefault() {
+      if (this.default !== null) {
+        this.focus(this.default);
+      } else {
+        this.focus(this.root.getDefaultFocus());
+      }
+    }
+  }, {
+    key: 'setRoot',
+    value: function setRoot(component) {
+      this.root = component;
     }
   }, {
     key: 'setDefault',
     value: function setDefault(component) {
-      this._default = component;
-    }
-  }, {
-    key: 'register',
-    value: function register(component) {
-      if (this._default === null) {
-        this.setDefault(component);
+      if (component.isContainer()) {
+        this.default = component.getDefaultFocus();
+      } else {
+        this.default = component;
       }
     }
 
@@ -1164,8 +1205,8 @@ var Navigation = function (_Component) {
     key: 'render',
     value: function render() {
       return _react2.default.createElement(
-        'div',
-        null,
+        _VerticalList2.default,
+        { rootNode: true },
         this.props.children
       );
     }
@@ -1192,77 +1233,6 @@ exports.default = Navigation;
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
-
-var _NavigableList2 = __webpack_require__(2);
-
-var _NavigableList3 = _interopRequireDefault(_NavigableList2);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var VerticalList = function (_NavigableList) {
-  _inherits(VerticalList, _NavigableList);
-
-  function VerticalList() {
-    _classCallCheck(this, VerticalList);
-
-    return _possibleConstructorReturn(this, (VerticalList.__proto__ || Object.getPrototypeOf(VerticalList)).apply(this, arguments));
-  }
-
-  _createClass(VerticalList, [{
-    key: 'getNextFocus',
-    value: function getNextFocus(direction) {
-      if (direction !== 'up' && direction !== 'down') {
-        return _get(VerticalList.prototype.__proto__ || Object.getPrototypeOf(VerticalList.prototype), 'getNextFocus', this).call(this, direction);
-      }
-
-      var elemIndex = null;
-      if (direction === 'up') {
-        elemIndex = this.previousChild();
-      } else if (direction === 'down') {
-        elemIndex = this.nextChild();
-      }
-
-      if (elemIndex === null) {
-        return _get(VerticalList.prototype.__proto__ || Object.getPrototypeOf(VerticalList.prototype), 'getNextFocus', this).call(this, direction);
-      }
-
-      if (this._children[elemIndex].isContainer()) {
-        return this._children[elemIndex].getLeaf();
-      }
-
-      return {
-        parent: this,
-        elementIndex: elemIndex,
-        element: this._children[elemIndex]
-      };
-    }
-  }]);
-
-  return VerticalList;
-}(_NavigableList3.default);
-
-exports.default = VerticalList;
-
-/***/ }),
-/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1359,7 +1329,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 14 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1375,7 +1345,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 if (process.env.NODE_ENV !== 'production') {
   var invariant = __webpack_require__(4);
   var warning = __webpack_require__(8);
-  var ReactPropTypesSecret = __webpack_require__(6);
+  var ReactPropTypesSecret = __webpack_require__(5);
   var loggedTypeFailures = {};
 }
 
@@ -1426,7 +1396,7 @@ module.exports = checkPropTypes;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1441,7 +1411,7 @@ module.exports = checkPropTypes;
 
 var emptyFunction = __webpack_require__(3);
 var invariant = __webpack_require__(4);
-var ReactPropTypesSecret = __webpack_require__(6);
+var ReactPropTypesSecret = __webpack_require__(5);
 
 module.exports = function() {
   function shim(props, propName, componentName, location, propFullName, secret) {
@@ -1491,7 +1461,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1507,10 +1477,10 @@ module.exports = function() {
 var emptyFunction = __webpack_require__(3);
 var invariant = __webpack_require__(4);
 var warning = __webpack_require__(8);
-var assign = __webpack_require__(13);
+var assign = __webpack_require__(12);
 
-var ReactPropTypesSecret = __webpack_require__(6);
-var checkPropTypes = __webpack_require__(14);
+var ReactPropTypesSecret = __webpack_require__(5);
+var checkPropTypes = __webpack_require__(13);
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -2041,16 +2011,16 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Focusable_jsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Grid_jsx__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Grid_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__Grid_jsx__);

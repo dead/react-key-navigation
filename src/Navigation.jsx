@@ -1,15 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import VerticalList from './VerticalList.jsx';
+
+const reverseDirection = {
+  'up': 'down',
+  'down': 'up',
+  'left': 'right',
+  'right': 'left'
+}
+
 /*
 This component listen the window keys events.
 */
 
 class Navigation extends Component {
-  _currentFocusedElement = null;
-  _lastFocusedElement = null;
-  _pause = false;
-  _default = null;
+  currentFocusedPath = null;
+  lastFocusedPath = null;
+  lastDirection = null;
+  pause = false;
+  default = null;
+  root = null;
 
   onKeyDown = (evt) => {
     if (this._pause || evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
@@ -26,8 +37,8 @@ class Navigation extends Component {
 
     if (!direction) {
       if (evt.keyCode === this.props.keyMapping['enter']) {
-        if (this._currentFocusedElement) {
-          if (!this.fireEvent(this._currentFocusedElement, 'enter-down')) {
+        if (this.currentFocusedPath) {
+          if (!this.fireEvent(this.getLastFromPath(this.currentFocusedPath), 'enter-down')) {
             return preventDefault();
           }
         }
@@ -35,13 +46,13 @@ class Navigation extends Component {
       return;
     }
 
-    let currentFocusedElement = this._currentFocusedElement;
+    let currentFocusedPath = this.currentFocusedPath;
 
-    if (!currentFocusedElement) {
-      currentFocusedElement = this._lastFocusedElement;
+    if (!currentFocusedPath) {
+      currentFocusedPath = this.lastFocusedPath;
 
-      if (!currentFocusedElement) {
-        this.focusDefault();
+      if (!currentFocusedPath) {
+        //this.focusDefault();
         return preventDefault();
       }
     }
@@ -51,15 +62,8 @@ class Navigation extends Component {
       cause: 'keydown'
     };
 
-    if (this.fireEvent(currentFocusedElement, 'willmove', willmoveProperties)) {
-      this.focusNext(direction, currentFocusedElement);
-    }
-
+    this.focusNext(direction, currentFocusedPath);
     return preventDefault();
-  }
-
-  onKeyUp = (evt) => {
-
   }
 
   fireEvent(element, evt, evtProps) {
@@ -69,12 +73,10 @@ class Navigation extends Component {
           element.props.onWillMove(evtProps);
         break;
       case 'onfocus':
-        if (element.props.onFocus)
-          element.props.onFocus(evtProps);
+        element.focus(evtProps);
         break;
       case 'onblur':
-        if (element.props.onBlur)
-          element.props.onBlur(evtProps);
+        element.blur(evtProps);
         break;
       case 'enter-down':
         if (element.props.onEnterDown)
@@ -87,52 +89,73 @@ class Navigation extends Component {
     return true;
   }
 
-  focusNext(direction, element) {
-    const next = element.getParentContainer().getNextFocus(direction);
+  focusNext(direction, focusedPath) {
+    let next = null;
+
+    if (direction === reverseDirection[this.lastDirection] && this.lastFocusedPath !== null) {
+      next = this.getLastFromPath(this.lastFocusedPath);
+    }
+    else {
+      next = this.getLastFromPath(focusedPath).getNextFocusFrom(direction);
+    }
+
     if (next) {
+      this.lastDirection = direction;
       this.focus(next);
     }
   }
 
+  blur(nextTree) {
+    if (this.currentFocusedPath === null)
+      return;
+
+    let changeNode = null;
+
+    for (let i = 0; i < Math.min(nextTree.length, this.currentFocusedPath.length); ++i) {
+      if (nextTree[i] !== this.currentFocusedPath[i]) {
+        changeNode = i;
+        break;
+      }
+    }
+
+    if (changeNode === null)
+      return;
+
+    for (let i = changeNode; i < this.currentFocusedPath.length; ++i) {
+      this.currentFocusedPath[i].blur();
+    }
+  }
+
+  focus(next) {
+    this.blur(next.treePath);
+    next.focus();
+
+    const lastPath = this.currentFocusedPath;
+    this.currentFocusedPath = next.treePath;
+    this.lastFocusedPath = lastPath;
+  }
+
+  getLastFromPath(path) {
+    return path[path.length - 1];
+  }
+
   focusDefault() {
-    if (!this._default)
-      return;
-
-    const elementObj = this._default.getLeaf();
-    this.focus(elementObj);
+    if (this.default !== null) {
+      this.focus(this.default);
+    } else {
+      this.focus(this.root.getDefaultFocus());
+    }
   }
 
-  focus(elementObj) {
-    if (!elementObj)
-      return;
-
-    this.blurCurrent();
-    const element = elementObj.element;
-    element.getParentContainer()._focus(elementObj.elementIndex);
-    this.fireEvent(element, 'onfocus');
-    this._changeFocus(element);
-  }
-
-  blurCurrent() {
-    if (this._currentFocusedElement === null)
-      return;
-
-    this.fireEvent(this._currentFocusedElement, 'onblur');
-  }
-
-  _changeFocus(to) {
-    const last = this._currentFocusedElement;
-    this._currentFocusedElement = to;
-    this._lastFocusedElement = last;
+  setRoot(component) {
+    this.root = component;
   }
 
   setDefault(component) {
-    this._default = component;
-  }
-
-  register(component) {
-    if (this._default === null) {
-      this.setDefault(component);
+    if (component.isContainer()) {
+      this.default = component.getDefaultFocus();
+    } else {
+      this.default = component;
     }
   }
 
@@ -154,7 +177,9 @@ class Navigation extends Component {
 
   render () {
     return (
-      <div>{this.props.children}</div>
+      <VerticalList rootNode={true}>
+        {this.props.children}
+      </VerticalList>
     );
   }
 }

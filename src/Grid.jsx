@@ -1,49 +1,43 @@
 import React from 'react';
-import NavigableList from './NavigableList.jsx';
+import Focusable from './Focusable.jsx';
 import HorizontalList from './HorizontalList.jsx';
 
-class Grid extends NavigableList {
-  getNextFocus(direction) {
+class Grid extends Focusable {
+  getNextFocus(direction, focusedIndex) {
     if (direction !== 'up' && direction !== 'down') {
-      return super.getNextFocus(direction);
+      return super.getNextFocus(direction, this.indexInParent);
     }
 
-    let elemIndex = null;
+    let nextFocus = null;
     if (direction === 'up') {
-      elemIndex = this.previousChild();
+      nextFocus = this.previousChild(focusedIndex);
     } else if (direction === 'down') {
-      elemIndex = this.nextChild();
+      nextFocus = this.nextChild(focusedIndex);
     }
 
-    if (elemIndex === null) {
-      return super.getNextFocus(direction);
+    if (!nextFocus) {
+      return super.getNextFocus(direction, this.indexInParent);
     }
 
-    if (!this._children[elemIndex].isContainer()) {
+    if (!nextFocus.isContainer()) {
       return null;
     }
 
-    const row = elemIndex;
-    let column = this._focusedChild !== null ? this._children[this._focusedChild]._focusedChild : 0;
+    const currentPath = this.context.navigationComponent.currentFocusedPath;
 
-    if (row === null || column === null) {
-      return null;
+    const row = nextFocus.indexInParent;
+    let column = currentPath[currentPath.indexOf(this) + 2].indexInParent;
+
+    if (this.children[row].children.length <= column) {
+      column = this.children[row].children.length;
     }
 
-    if (this._children[row]._children.length <= column) {
-      column = this._children[row]._children.length;
-    }
-
-    const next = this._children[row]._children[column];
+    const next = this.children[row].children[column];
     if (next.isContainer()) {
-      return next.getLeaf();
+      return next.getDefaultFocus();
     }
 
-    return {
-      parent: this,
-      elementIndex: column,
-      element: next,
-    };
+    return next;
   }
 
   render() {

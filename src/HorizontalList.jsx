@@ -1,31 +1,33 @@
-import NavigableList from './NavigableList.jsx';
+import React from 'react';
+import Focusable from './Focusable.jsx';
 
-class HorizontalList extends NavigableList {
-  getNextFocus(direction) {
+class HorizontalList extends Focusable {
+  getNextFocus(direction, focusedIndex) {
     if (direction !== 'left' && direction !== 'right') {
-      return super.getNextFocus(direction);
+      return super.getNextFocus(direction, this.indexInParent);
     }
 
-    let elemIndex = null;
+    let nextFocus = null;
     if (direction === 'left') {
-      elemIndex = this.previousChild();
+      nextFocus = this.previousChild(focusedIndex);
     } else if (direction === 'right') {
-      elemIndex = this.nextChild();
+      nextFocus = this.nextChild(focusedIndex);
     }
 
-    if (elemIndex === null) {
-      return super.getNextFocus(direction);
+    if (!nextFocus) {
+      return super.getNextFocus(direction, this.indexInParent);
     }
 
-    if (this._children[elemIndex].isContainer()) {
-      return this._children[elemIndex].getLeaf();
+    if (nextFocus.isContainer()) {
+      return nextFocus.getDefaultFocus();
     }
 
-    return {
-      parent: this,
-      elementIndex: elemIndex,
-      element: this._children[elemIndex],
-    }
+    return nextFocus;
+  }
+
+  render() {
+    const {focused, rootNode, navDefault, onFocus, onBlur, ...props} = this.props;
+    return <div {...props}/>
   }
 }
 

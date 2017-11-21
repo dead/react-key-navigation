@@ -1,31 +1,27 @@
-import NavigableList from './NavigableList.jsx';
+import Focusable from './Focusable.jsx';
 
-class VerticalList extends NavigableList {
-  getNextFocus(direction) {
+class VerticalList extends Focusable {
+  getNextFocus(direction, focusedIndex) {
     if (direction !== 'up' && direction !== 'down') {
-      return super.getNextFocus(direction);
+      return super.getNextFocus(direction, this.indexInParent);
     }
 
-    let elemIndex = null;
+    let nextFocus = null;
     if (direction === 'up') {
-      elemIndex = this.previousChild();
+      nextFocus = this.previousChild(focusedIndex);
     } else if (direction === 'down') {
-      elemIndex = this.nextChild();
+      nextFocus = this.nextChild(focusedIndex);
     }
 
-    if (elemIndex === null) {
-      return super.getNextFocus(direction);
+    if (!nextFocus) {
+      return super.getNextFocus(direction, this.indexInParent);
     }
 
-    if (this._children[elemIndex].isContainer()) {
-      return this._children[elemIndex].getLeaf();
+    if (nextFocus.isContainer()) {
+      return nextFocus.getDefaultFocus();
     }
 
-    return {
-      parent: this,
-      elementIndex: elemIndex,
-      element: this._children[elemIndex],
-    }
+    return nextFocus;
   }
 }
 
