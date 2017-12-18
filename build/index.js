@@ -1055,7 +1055,7 @@ var Navigation = function (_Component) {
       if (!direction) {
         if (evt.keyCode === _this.props.keyMapping['enter']) {
           if (_this.currentFocusedPath) {
-            if (!_this.fireEvent(_this.currentFocusedPath, 'enter-down')) {
+            if (!_this.fireEvent(_this.getLastFromPath(_this.currentFocusedPath), 'enter-down')) {
               return preventDefault();
             }
           }
