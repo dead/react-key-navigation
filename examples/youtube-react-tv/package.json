@@ -1,6 +1,7 @@
 {
   "name": "youtube-react-tv",
   "version": "0.1.0",
+  "license": "MIT",
   "react-tv": {
     "files": [
       "index.html",
