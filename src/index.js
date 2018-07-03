@@ -4,8 +4,8 @@ import HorizontalList from './HorizontalList.jsx';
 import Grid from './Grid.jsx';
 import Navigation from './Navigation.jsx';
 
-export default Navigation;
 export {
+  Navigation as default,
   VerticalList,
   HorizontalList,
   Grid,
