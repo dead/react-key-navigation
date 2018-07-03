@@ -5,7 +5,7 @@ class Focusable extends Component {
   treePath = [];
   children = [];
   indexInParent = 0;
-  focused = null;
+  focusableId = null;
 
   constructor(props, context) {
     super(props, context);
@@ -76,13 +76,13 @@ class Focusable extends Component {
   focus() {
     this.treePath.map(component => {
       if (component.props.onFocus)
-        component.props.onFocus(this.indexInParent);
+        component.props.onFocus(this.indexInParent, this.context.navigationComponent);
     });
   }
 
   blur() {
     if (this.props.onBlur) {
-      this.props.onBlur(this.indexInParent);
+      this.props.onBlur(this.indexInParent, this.context.navigationComponent);
     }
   }
 
@@ -116,6 +116,12 @@ class Focusable extends Component {
     if (this.props.navDefault) {
       this.context.navigationComponent.setDefault(this);
     }
+
+    if (this.props.forceFocus) {
+      this.context.navigationComponent.focus(this);
+    }
+
+    this.focusableId = this.context.navigationComponent.addComponent(this, this.props.focusId);
   }
 
   componentWillUnmount() {
@@ -125,7 +131,7 @@ class Focusable extends Component {
   }
 
   render() {
-    const {navDefault, onFocus, onBlur, onEnterDown, ...props} = this.props;
+    const {focusId, navDefault, onFocus, onBlur, onEnterDown, ...props} = this.props;
     return <span {...props}/>
   }
 }
@@ -142,6 +148,7 @@ Focusable.childContextTypes  = {
 Focusable.defaultProps = {
   rootNode: false,
   navDefault: false,
+  forceFocus: false,
   onFocus: PropTypes.function,
   onBlur: PropTypes.function,
   onEnterDown: PropTypes.function

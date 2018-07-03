@@ -47,7 +47,7 @@ export default class Sidebar extends React.Component {
         </div>
         <div id="menu">
           <VerticalList onFocus={() => this.setActive(true)}
-                        onBlur={() => this.setActive(false)}>
+                        onBlur={() => this.setActive(false)} focusId="sidebar">
             <ToogleItem icon="user">Login</ToogleItem>
             <ToogleItem icon="search">Search</ToogleItem>
             <ToogleItem icon="home">Home</ToogleItem>

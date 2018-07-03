@@ -21,6 +21,8 @@ class Navigation extends Component {
   pause = false;
   default = null;
   root = null;
+  focusableComponents = {};
+  focusableIds = 0;
 
   onKeyDown = (evt) => {
     if (this._pause || evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
@@ -75,7 +77,7 @@ class Navigation extends Component {
         break;
       case 'enter-down':
         if (element.props.onEnterDown)
-          element.props.onEnterDown(evtProps);
+          element.props.onEnterDown(evtProps, this);
         break;
       default:
         return false;
@@ -152,6 +154,27 @@ class Navigation extends Component {
     } else {
       this.default = component;
     }
+  }
+
+  addComponent(component, id=null) {
+    if (!id) {
+      id = 'focusable-' + this.focusableIds++;
+    }
+
+    if (this.focusableComponents[id]) {
+      throw new Error('Focusable component with id "' + id + '" has already existed!');
+    }
+
+    this.focusableComponents[id] = component;
+    return id;
+  }
+
+  forceFocus(focusableId) {
+    if (!this.focusableComponents[focusableId]) {
+      throw new Error('Focusable component with id "' + focusableId + '" doesn\'t exists!');
+    }
+
+    this.focus(this.focusableComponents[focusableId].getDefaultFocus());
   }
 
   // React Functions

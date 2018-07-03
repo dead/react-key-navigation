@@ -20,9 +20,14 @@ export default class Search extends React.Component {
     this.setState({active: true});
   }
 
+  onEnterDown(event, navigation) {
+    console.log('enter pressed');
+    navigation.forceFocus('sidebar');
+  }
+
   render() {
     return (
-      <Focusable onFocus={() => this.onFocus()} onBlur={() => this.onBlur()} navDefault>
+      <Focusable onFocus={() => this.onFocus()} onBlur={() => this.onBlur()} onEnterDown={(e, n) => this.onEnterDown(e, n)} navDefault>
         <div class={this.state.active ? 'search-box-placeholder-focus' : ''} id="search-box-placeholder"><i class="fa fa-search"></i></div>
       </Focusable>
     );
