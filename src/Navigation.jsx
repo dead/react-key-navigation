@@ -120,6 +120,10 @@ class Navigation extends Component {
 
     for (let i = changeNode; i < this.currentFocusedPath.length; ++i) {
       this.currentFocusedPath[i].blur();
+
+      if (i < this.currentFocusedPath.length - 1) {
+        this.currentFocusedPath[i].lastFocusChild = this.currentFocusedPath[i + 1].indexInParent;
+      }
     }
   }
 

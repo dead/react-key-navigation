@@ -6,6 +6,7 @@ class Focusable extends Component {
   children = [];
   indexInParent = 0;
   focusableId = null;
+  lastFocusChild = null;
 
   constructor(props, context) {
     super(props, context);
@@ -41,6 +42,10 @@ class Focusable extends Component {
   }
 
   getDefaultChild() {
+    if (this.lastFocusChild && this.props.retainLastFocus) {
+      return this.lastFocusChild;
+    }
+
     return 0;
   }
 
@@ -149,6 +154,7 @@ Focusable.defaultProps = {
   rootNode: false,
   navDefault: false,
   forceFocus: false,
+  retainLastFocus: false,
   onFocus: PropTypes.function,
   onBlur: PropTypes.function,
   onEnterDown: PropTypes.function
