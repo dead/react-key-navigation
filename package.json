@@ -10,13 +10,6 @@
     "type": "git",
     "url": "git+https://github.com/dead/react-key-navigation.git"
   },
-  "peerDependencies": {
-    "react": "^15.5.4"
-  },
-  "dependencies": {
-    "react": "^15.5.4",
-    "webpack": "^2.6.1"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "webpack --watch",
@@ -27,6 +20,9 @@
     "email": "gustavobenn@gmail.com",
     "url": "https://github.com/dead"
   },
+  "peerDependencies": {
+    "react": "^15.5.4"
+  },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.24.1",
@@ -35,6 +31,9 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-preset-env": "^1.5.1",
     "babel-preset-react": "^6.24.1",
-    "babel-preset-stage-2": "^6.24.1"
+    "babel-preset-stage-2": "^6.24.1",
+    "prop-types": "^15.6.2",
+    "webpack": "^2.6.1",
+    "react": "^15.5.4"
   }
 }
