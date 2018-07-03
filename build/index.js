@@ -138,14 +138,12 @@ var Focusable = function (_Component) {
         this.children[i].indexInParent -= 1;
       }
 
-      if (this.props.rootNode) {
-        var currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
-        var index = currentFocusedPath.indexOf(child);
+      var currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
+      var index = currentFocusedPath.indexOf(child);
 
-        if (index >= 0) {
-          var next = currentFocusedPath[index - 1].getDefaultFocus();
-          this.context.navigationComponent.focus(next);
-        }
+      if (index >= 0) {
+        var next = currentFocusedPath[index - 1].getDefaultFocus();
+        this.context.navigationComponent.focus(next);
       }
     }
   }, {
@@ -230,10 +228,6 @@ var Focusable = function (_Component) {
   }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
-      if (this.props.rootNode) {
-        this.context.navigationComponent.setRoot(this);
-      }
-
       if (this.context.parentFocusable) {
         this.buildTreePath();
         this.indexInParent = this.getParent().addChild(this);
@@ -280,7 +274,8 @@ Focusable.defaultProps = {
   rootNode: false,
   navDefault: false,
   onFocus: _propTypes2.default.function,
-  onBlur: _propTypes2.default.function
+  onBlur: _propTypes2.default.function,
+  onEnterDown: _propTypes2.default.function
 };
 
 exports.default = Focusable;
@@ -1029,11 +1024,14 @@ var Navigation = function (_Component) {
   }, {
     key: 'render',
     value: function render() {
-      return _react2.default.createElement(
+      var root = _react2.default.createElement(
         _VerticalList2.default,
-        { rootNode: true },
+        null,
         this.props.children
       );
+
+      this.setRoot(root);
+      return root;
     }
   }]);
 

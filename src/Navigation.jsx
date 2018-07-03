@@ -171,11 +171,14 @@ class Navigation extends Component {
   }
 
   render () {
-    return (
-      <VerticalList rootNode={true}>
+    const root = (
+      <VerticalList>
         {this.props.children}
       </VerticalList>
     );
+
+    this.setRoot(root);
+    return root;
   }
 }
 

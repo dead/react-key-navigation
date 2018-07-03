@@ -36,7 +36,6 @@ export default class List extends React.Component {
   }
 
   onFocus(index) {
-    console.log(index, this._lastFocus);
     if (this._lastFocus === index) {
       return;
     }

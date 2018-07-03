@@ -31,14 +31,12 @@ class Focusable extends Component {
       this.children[i].indexInParent -= 1;
     }
 
-    if (this.props.rootNode) {
-      const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
-      const index = currentFocusedPath.indexOf(child);
+    const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
+    const index = currentFocusedPath.indexOf(child);
 
-      if (index >= 0) {
-        const next = currentFocusedPath[index - 1].getDefaultFocus();
-        this.context.navigationComponent.focus(next);
-      }
+    if (index >= 0) {
+      const next = currentFocusedPath[index - 1].getDefaultFocus();
+      this.context.navigationComponent.focus(next);
     }
   }
 
@@ -110,10 +108,6 @@ class Focusable extends Component {
   }
 
   componentDidMount() {
-    if (this.props.rootNode) {
-      this.context.navigationComponent.setRoot(this);
-    }
-
     if (this.context.parentFocusable) {
       this.buildTreePath();
       this.indexInParent = this.getParent().addChild(this);
@@ -149,7 +143,8 @@ Focusable.defaultProps = {
   rootNode: false,
   navDefault: false,
   onFocus: PropTypes.function,
-  onBlur: PropTypes.function
-}
+  onBlur: PropTypes.function,
+  onEnterDown: PropTypes.function
+};
 
 export default Focusable;
