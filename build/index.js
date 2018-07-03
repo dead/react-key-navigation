@@ -64,11 +64,235 @@ module.exports =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _react = __webpack_require__(1);
+
+var _react2 = _interopRequireDefault(_react);
+
+var _propTypes = __webpack_require__(6);
+
+var _propTypes2 = _interopRequireDefault(_propTypes);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var Focusable = function (_Component) {
+  _inherits(Focusable, _Component);
+
+  function Focusable(props, context) {
+    _classCallCheck(this, Focusable);
+
+    var _this = _possibleConstructorReturn(this, (Focusable.__proto__ || Object.getPrototypeOf(Focusable)).call(this, props, context));
+
+    _this.treePath = [];
+    _this.children = [];
+    _this.indexInParent = 0;
+    _this.focused = null;
+    return _this;
+  }
+
+  _createClass(Focusable, [{
+    key: 'isContainer',
+    value: function isContainer() {
+      return this.children.length > 0;
+    }
+  }, {
+    key: 'getParent',
+    value: function getParent() {
+      return this.context.parentFocusable;
+    }
+  }, {
+    key: 'addChild',
+    value: function addChild(child) {
+      this.children.push(child);
+      return this.children.length - 1;
+    }
+  }, {
+    key: 'removeChild',
+    value: function removeChild(child) {
+      this.children.splice(child.indexInParent, 1);
+
+      for (var i = child.indexInParent; i < this.children.length; ++i) {
+        this.children[i].indexInParent -= 1;
+      }
+
+      if (this.props.rootNode) {
+        var currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
+        var index = currentFocusedPath.indexOf(child);
+
+        if (index >= 0) {
+          var next = currentFocusedPath[index - 1].getDefaultFocus();
+          this.context.navigationComponent.focus(next);
+        }
+      }
+    }
+  }, {
+    key: 'getDefaultChild',
+    value: function getDefaultChild() {
+      return 0;
+    }
+  }, {
+    key: 'getNextFocusFrom',
+    value: function getNextFocusFrom(direction) {
+      return this.getNextFocus(direction, this.indexInParent);
+    }
+  }, {
+    key: 'getNextFocus',
+    value: function getNextFocus(direction, focusedIndex) {
+      if (!this.getParent()) {
+        return null;
+      }
+
+      return this.getParent().getNextFocus(direction, focusedIndex);
+    }
+  }, {
+    key: 'getDefaultFocus',
+    value: function getDefaultFocus() {
+      if (this.isContainer()) return this.children[this.getDefaultChild()].getDefaultFocus();
+
+      return this;
+    }
+  }, {
+    key: 'buildTreePath',
+    value: function buildTreePath() {
+      this.treePath.unshift(this);
+
+      var parent = this.getParent();
+      while (parent) {
+        this.treePath.unshift(parent);
+        parent = parent.getParent();
+      }
+    }
+  }, {
+    key: 'focus',
+    value: function focus() {
+      var _this2 = this;
+
+      this.treePath.map(function (component) {
+        if (component.props.onFocus) component.props.onFocus(_this2.indexInParent);
+      });
+    }
+  }, {
+    key: 'blur',
+    value: function blur() {
+      if (this.props.onBlur) {
+        this.props.onBlur(this.indexInParent);
+      }
+    }
+  }, {
+    key: 'nextChild',
+    value: function nextChild(focusedIndex) {
+      if (this.children.length === focusedIndex + 1) {
+        return null;
+      }
+
+      return this.children[focusedIndex + 1];
+    }
+  }, {
+    key: 'previousChild',
+    value: function previousChild(focusedIndex) {
+      if (focusedIndex - 1 < 0) {
+        return null;
+      }
+
+      return this.children[focusedIndex - 1];
+    }
+
+    // React Methods
+
+  }, {
+    key: 'getChildContext',
+    value: function getChildContext() {
+      return { parentFocusable: this };
+    }
+  }, {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      if (this.props.rootNode) {
+        this.context.navigationComponent.setRoot(this);
+      }
+
+      if (this.context.parentFocusable) {
+        this.buildTreePath();
+        this.indexInParent = this.getParent().addChild(this);
+      }
+
+      if (this.props.navDefault) {
+        this.context.navigationComponent.setDefault(this);
+      }
+    }
+  }, {
+    key: 'componentWillUnmount',
+    value: function componentWillUnmount() {
+      if (this.context.parentFocusable) {
+        this.getParent().removeChild(this);
+      }
+    }
+  }, {
+    key: 'render',
+    value: function render() {
+      var _props = this.props,
+          navDefault = _props.navDefault,
+          onFocus = _props.onFocus,
+          onBlur = _props.onBlur,
+          onEnterDown = _props.onEnterDown,
+          props = _objectWithoutProperties(_props, ['navDefault', 'onFocus', 'onBlur', 'onEnterDown']);
+
+      return _react2.default.createElement('span', props);
+    }
+  }]);
+
+  return Focusable;
+}(_react.Component);
+
+Focusable.contextTypes = {
+  parentFocusable: _propTypes2.default.object,
+  navigationComponent: _propTypes2.default.object
+};
+
+Focusable.childContextTypes = {
+  parentFocusable: _propTypes2.default.object
+};
+
+Focusable.defaultProps = {
+  rootNode: false,
+  navDefault: false,
+  onFocus: _propTypes2.default.function,
+  onBlur: _propTypes2.default.function
+};
+
+exports.default = Focusable;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = require("react");
+
+/***/ }),
+/* 2 */
 /***/ (function(module, exports) {
 
 // shim for using process in browser
@@ -258,331 +482,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _react = __webpack_require__(2);
-
-var _react2 = _interopRequireDefault(_react);
-
-var _propTypes = __webpack_require__(9);
-
-var _propTypes2 = _interopRequireDefault(_propTypes);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _objectWithoutProperties(obj, keys) { var target = {}; for (var i in obj) { if (keys.indexOf(i) >= 0) continue; if (!Object.prototype.hasOwnProperty.call(obj, i)) continue; target[i] = obj[i]; } return target; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var Focusable = function (_Component) {
-  _inherits(Focusable, _Component);
-
-  function Focusable(props, context) {
-    _classCallCheck(this, Focusable);
-
-    var _this = _possibleConstructorReturn(this, (Focusable.__proto__ || Object.getPrototypeOf(Focusable)).call(this, props, context));
-
-    _this.treePath = [];
-    _this.children = [];
-    _this.indexInParent = 0;
-    _this.focused = null;
-    return _this;
-  }
-
-  _createClass(Focusable, [{
-    key: 'isContainer',
-    value: function isContainer() {
-      return this.children.length > 0;
-    }
-  }, {
-    key: 'getParent',
-    value: function getParent() {
-      return this.context.parentFocusable;
-    }
-  }, {
-    key: 'addChild',
-    value: function addChild(child) {
-      //console.log(child);
-      this.children.push(child);
-      return this.children.length - 1;
-    }
-  }, {
-    key: 'removeChild',
-    value: function removeChild(child) {
-      this.children.splice(child.indexInParent, 1);
-
-      if (this.props.rootNode) {
-        var currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
-        var index = currentFocusedPath.indexOf(child);
-
-        if (index >= 0) {
-          var next = currentFocusedPath[index - 1].getDefaultFocus();
-          this.context.navigationComponent.focus(next);
-        }
-      }
-    }
-  }, {
-    key: 'getDefaultChild',
-    value: function getDefaultChild() {
-      return 0;
-    }
-  }, {
-    key: 'getNextFocusFrom',
-    value: function getNextFocusFrom(direction) {
-      return this.getNextFocus(direction, this.indexInParent);
-    }
-  }, {
-    key: 'getNextFocus',
-    value: function getNextFocus(direction, focusedIndex) {
-      if (!this.getParent()) {
-        return null;
-      }
-
-      return this.getParent().getNextFocus(direction, focusedIndex);
-    }
-  }, {
-    key: 'getDefaultFocus',
-    value: function getDefaultFocus() {
-      if (this.isContainer()) return this.children[this.getDefaultChild()].getDefaultFocus();
-
-      return this;
-    }
-  }, {
-    key: 'buildTreePath',
-    value: function buildTreePath() {
-      this.treePath.unshift(this);
-
-      var parent = this.getParent();
-      while (parent) {
-        this.treePath.unshift(parent);
-        parent = parent.getParent();
-      }
-    }
-  }, {
-    key: 'focus',
-    value: function focus() {
-      var _this2 = this;
-
-      this.treePath.map(function (component) {
-        if (component.props.onFocus) component.props.onFocus(_this2.indexInParent);
-      });
-    }
-  }, {
-    key: 'blur',
-    value: function blur() {
-      if (this.props.onBlur) {
-        this.props.onBlur(this.indexInParent);
-      }
-    }
-  }, {
-    key: 'nextChild',
-    value: function nextChild(focusedIndex) {
-      if (this.children.length === focusedIndex + 1) {
-        return null;
-      }
-
-      return this.children[focusedIndex + 1];
-    }
-  }, {
-    key: 'previousChild',
-    value: function previousChild(focusedIndex) {
-      if (focusedIndex - 1 < 0) {
-        return null;
-      }
-
-      return this.children[focusedIndex - 1];
-    }
-
-    // React Methods
-
-  }, {
-    key: 'getChildContext',
-    value: function getChildContext() {
-      return { parentFocusable: this };
-    }
-  }, {
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      if (this.props.rootNode) {
-        this.context.navigationComponent.setRoot(this);
-      }
-
-      if (this.context.parentFocusable) {
-        this.buildTreePath();
-        this.indexInParent = this.getParent().addChild(this);
-      }
-
-      if (this.props.navDefault) {
-        this.context.navigationComponent.setDefault(this);
-      }
-    }
-  }, {
-    key: 'componentWillUnmount',
-    value: function componentWillUnmount() {
-      if (this.context.parentFocusable) {
-        this.getParent().removeChild(this);
-      }
-    }
-  }, {
-    key: 'render',
-    value: function render() {
-      var _props = this.props,
-          focused = _props.focused,
-          rootNode = _props.rootNode,
-          navDefault = _props.navDefault,
-          onFocus = _props.onFocus,
-          onBlur = _props.onBlur,
-          props = _objectWithoutProperties(_props, ['focused', 'rootNode', 'navDefault', 'onFocus', 'onBlur']);
-
-      return _react2.default.createElement('span', props);
-    }
-  }]);
-
-  return Focusable;
-}(_react.Component);
-
-Focusable.contextTypes = {
-  parentFocusable: _propTypes2.default.object,
-  navigationComponent: _propTypes2.default.object
-};
-
-Focusable.childContextTypes = {
-  parentFocusable: _propTypes2.default.object
-};
-
-Focusable.defaultProps = {
-  rootNode: false,
-  navDefault: false,
-  onFocus: _propTypes2.default.function,
-  onBlur: _propTypes2.default.function
-};
-
-exports.default = Focusable;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports) {
-
-module.exports = require("react");
-
-/***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * 
- */
-
-function makeEmptyFunction(arg) {
-  return function () {
-    return arg;
-  };
-}
-
-/**
- * This function accepts and discards inputs; it has no side effects. This is
- * primarily useful idiomatically for overridable function endpoints which
- * always need to be callable, since JS lacks a null-call idiom ala Cocoa.
- */
-var emptyFunction = function emptyFunction() {};
-
-emptyFunction.thatReturns = makeEmptyFunction;
-emptyFunction.thatReturnsFalse = makeEmptyFunction(false);
-emptyFunction.thatReturnsTrue = makeEmptyFunction(true);
-emptyFunction.thatReturnsNull = makeEmptyFunction(null);
-emptyFunction.thatReturnsThis = function () {
-  return this;
-};
-emptyFunction.thatReturnsArgument = function (arg) {
-  return arg;
-};
-
-module.exports = emptyFunction;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2013-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-/**
- * Use invariant() to assert state which your program assumes to be true.
- *
- * Provide sprintf-style format (only %s is supported) and arguments
- * to provide information about what broke and what you were
- * expecting.
- *
- * The invariant message will be stripped in production, but the invariant
- * will remain to ensure logic does not differ in production.
- */
-
-var validateFormat = function validateFormat(format) {};
-
-if (process.env.NODE_ENV !== 'production') {
-  validateFormat = function validateFormat(format) {
-    if (format === undefined) {
-      throw new Error('invariant requires an error message argument');
-    }
-  };
-}
-
-function invariant(condition, format, a, b, c, d, e, f) {
-  validateFormat(format);
-
-  if (!condition) {
-    var error;
-    if (format === undefined) {
-      error = new Error('Minified exception occurred; use the non-minified dev environment ' + 'for the full error message and additional helpful warnings.');
-    } else {
-      var args = [a, b, c, d, e, f];
-      var argIndex = 0;
-      error = new Error(format.replace(/%s/g, function () {
-        return args[argIndex++];
-      }));
-      error.name = 'Invariant Violation';
-    }
-
-    error.framesToPop = 1; // we don't care about invariant's own frame
-    throw error;
-  }
-}
-
-module.exports = invariant;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -601,7 +501,7 @@ module.exports = ReactPropTypesSecret;
 
 
 /***/ }),
-/* 6 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -615,11 +515,11 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _react = __webpack_require__(2);
+var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Focusable2 = __webpack_require__(1);
+var _Focusable2 = __webpack_require__(0);
 
 var _Focusable3 = _interopRequireDefault(_Focusable2);
 
@@ -670,12 +570,11 @@ var HorizontalList = function (_Focusable) {
     key: 'render',
     value: function render() {
       var _props = this.props,
-          focused = _props.focused,
-          rootNode = _props.rootNode,
           navDefault = _props.navDefault,
           onFocus = _props.onFocus,
           onBlur = _props.onBlur,
-          props = _objectWithoutProperties(_props, ['focused', 'rootNode', 'navDefault', 'onFocus', 'onBlur']);
+          onEnterDown = _props.onEnterDown,
+          props = _objectWithoutProperties(_props, ['navDefault', 'onFocus', 'onBlur', 'onEnterDown']);
 
       return _react2.default.createElement('div', props);
     }
@@ -687,7 +586,7 @@ var HorizontalList = function (_Focusable) {
 exports.default = HorizontalList;
 
 /***/ }),
-/* 7 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -701,7 +600,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _Focusable2 = __webpack_require__(1);
+var _Focusable2 = __webpack_require__(0);
 
 var _Focusable3 = _interopRequireDefault(_Focusable2);
 
@@ -754,76 +653,7 @@ var VerticalList = function (_Focusable) {
 exports.default = VerticalList;
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {/**
- * Copyright (c) 2014-present, Facebook, Inc.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- */
-
-
-
-var emptyFunction = __webpack_require__(3);
-
-/**
- * Similar to invariant but only logs a warning if the condition is not met.
- * This can be used to log issues in development environments in critical
- * paths. Removing the logging code for production environments will keep the
- * same logic and follow the same code paths.
- */
-
-var warning = emptyFunction;
-
-if (process.env.NODE_ENV !== 'production') {
-  var printWarning = function printWarning(format) {
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      args[_key - 1] = arguments[_key];
-    }
-
-    var argIndex = 0;
-    var message = 'Warning: ' + format.replace(/%s/g, function () {
-      return args[argIndex++];
-    });
-    if (typeof console !== 'undefined') {
-      console.error(message);
-    }
-    try {
-      // --- Welcome to debugging React ---
-      // This error was thrown as a convenience so that you can use this stack
-      // to find the callsite that caused this warning to fire.
-      throw new Error(message);
-    } catch (x) {}
-  };
-
-  warning = function warning(condition, format) {
-    if (format === undefined) {
-      throw new Error('`warning(condition, format, ...args)` requires a warning ' + 'message argument');
-    }
-
-    if (format.indexOf('Failed Composite propType: ') === 0) {
-      return; // Ignore CompositeComponent proptype check.
-    }
-
-    if (!condition) {
-      for (var _len2 = arguments.length, args = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
-        args[_key2 - 2] = arguments[_key2];
-      }
-
-      printWarning.apply(undefined, [format].concat(args));
-    }
-  };
-}
-
-module.exports = warning;
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 9 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(process) {/**
@@ -848,17 +678,17 @@ if (process.env.NODE_ENV !== 'production') {
   // By explicitly using `prop-types` you are opting into new development behavior.
   // http://fb.me/prop-types-in-prod
   var throwOnDirectAccess = true;
-  module.exports = __webpack_require__(15)(isValidElement, throwOnDirectAccess);
+  module.exports = __webpack_require__(12)(isValidElement, throwOnDirectAccess);
 } else {
   // By explicitly using `prop-types` you are opting into new production behavior.
   // http://fb.me/prop-types-in-prod
-  module.exports = __webpack_require__(14)();
+  module.exports = __webpack_require__(11)();
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 10 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -872,15 +702,15 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
-var _react = __webpack_require__(2);
+var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Focusable2 = __webpack_require__(1);
+var _Focusable2 = __webpack_require__(0);
 
 var _Focusable3 = _interopRequireDefault(_Focusable2);
 
-var _HorizontalList = __webpack_require__(6);
+var _HorizontalList = __webpack_require__(4);
 
 var _HorizontalList2 = _interopRequireDefault(_HorizontalList);
 
@@ -982,7 +812,7 @@ Grid.defaultProps = {
 exports.default = Grid;
 
 /***/ }),
-/* 11 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -994,15 +824,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _react = __webpack_require__(2);
+var _react = __webpack_require__(1);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _propTypes = __webpack_require__(9);
+var _propTypes = __webpack_require__(6);
 
 var _propTypes2 = _interopRequireDefault(_propTypes);
 
-var _VerticalList = __webpack_require__(7);
+var _VerticalList = __webpack_require__(5);
 
 var _VerticalList2 = _interopRequireDefault(_VerticalList);
 
@@ -1073,11 +903,6 @@ var Navigation = function (_Component) {
           return preventDefault();
         }
       }
-
-      var willmoveProperties = {
-        direction: direction,
-        cause: 'keydown'
-      };
 
       _this.focusNext(direction, currentFocusedPath);
       return preventDefault();
@@ -1232,7 +1057,7 @@ Navigation.childContextTypes = {
 exports.default = Navigation;
 
 /***/ }),
-/* 12 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1329,7 +1154,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 /***/ }),
-/* 13 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1342,11 +1167,24 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 
 
 
+var printWarning = function() {};
+
 if (process.env.NODE_ENV !== 'production') {
-  var invariant = __webpack_require__(4);
-  var warning = __webpack_require__(8);
-  var ReactPropTypesSecret = __webpack_require__(5);
+  var ReactPropTypesSecret = __webpack_require__(3);
   var loggedTypeFailures = {};
+
+  printWarning = function(text) {
+    var message = 'Warning: ' + text;
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
 }
 
 /**
@@ -1371,12 +1209,29 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
         try {
           // This is intentionally an invariant that gets caught. It's the same
           // behavior as without this statement except with a better message.
-          invariant(typeof typeSpecs[typeSpecName] === 'function', '%s: %s type `%s` is invalid; it must be a function, usually from ' + 'the `prop-types` package, but received `%s`.', componentName || 'React class', location, typeSpecName, typeof typeSpecs[typeSpecName]);
+          if (typeof typeSpecs[typeSpecName] !== 'function') {
+            var err = Error(
+              (componentName || 'React class') + ': ' + location + ' type `' + typeSpecName + '` is invalid; ' +
+              'it must be a function, usually from the `prop-types` package, but received `' + typeof typeSpecs[typeSpecName] + '`.'
+            );
+            err.name = 'Invariant Violation';
+            throw err;
+          }
           error = typeSpecs[typeSpecName](values, typeSpecName, componentName, location, null, ReactPropTypesSecret);
         } catch (ex) {
           error = ex;
         }
-        warning(!error || error instanceof Error, '%s: type specification of %s `%s` is invalid; the type checker ' + 'function must return `null` or an `Error` but returned a %s. ' + 'You may have forgotten to pass an argument to the type checker ' + 'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' + 'shape all require an argument).', componentName || 'React class', location, typeSpecName, typeof error);
+        if (error && !(error instanceof Error)) {
+          printWarning(
+            (componentName || 'React class') + ': type specification of ' +
+            location + ' `' + typeSpecName + '` is invalid; the type checker ' +
+            'function must return `null` or an `Error` but returned a ' + typeof error + '. ' +
+            'You may have forgotten to pass an argument to the type checker ' +
+            'creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and ' +
+            'shape all require an argument).'
+          )
+
+        }
         if (error instanceof Error && !(error.message in loggedTypeFailures)) {
           // Only monitor this failure once because there tends to be a lot of the
           // same error.
@@ -1384,7 +1239,9 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 
           var stack = getStack ? getStack() : '';
 
-          warning(false, 'Failed %s type: %s%s', location, error.message, stack != null ? stack : '');
+          printWarning(
+            'Failed ' + location + ' type: ' + error.message + (stack != null ? stack : '')
+          );
         }
       }
     }
@@ -1393,10 +1250,10 @@ function checkPropTypes(typeSpecs, values, location, componentName, getStack) {
 
 module.exports = checkPropTypes;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 14 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1409,9 +1266,9 @@ module.exports = checkPropTypes;
 
 
 
-var emptyFunction = __webpack_require__(3);
-var invariant = __webpack_require__(4);
-var ReactPropTypesSecret = __webpack_require__(5);
+var ReactPropTypesSecret = __webpack_require__(3);
+
+function emptyFunction() {}
 
 module.exports = function() {
   function shim(props, propName, componentName, location, propFullName, secret) {
@@ -1419,12 +1276,13 @@ module.exports = function() {
       // It is still safe when called from React.
       return;
     }
-    invariant(
-      false,
+    var err = new Error(
       'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
       'Use PropTypes.checkPropTypes() to call them. ' +
       'Read more at http://fb.me/use-check-prop-types'
     );
+    err.name = 'Invariant Violation';
+    throw err;
   };
   shim.isRequired = shim;
   function getShim() {
@@ -1461,7 +1319,7 @@ module.exports = function() {
 
 
 /***/ }),
-/* 15 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1474,13 +1332,31 @@ module.exports = function() {
 
 
 
-var emptyFunction = __webpack_require__(3);
-var invariant = __webpack_require__(4);
-var warning = __webpack_require__(8);
-var assign = __webpack_require__(12);
+var assign = __webpack_require__(9);
 
-var ReactPropTypesSecret = __webpack_require__(5);
-var checkPropTypes = __webpack_require__(13);
+var ReactPropTypesSecret = __webpack_require__(3);
+var checkPropTypes = __webpack_require__(10);
+
+var printWarning = function() {};
+
+if (process.env.NODE_ENV !== 'production') {
+  printWarning = function(text) {
+    var message = 'Warning: ' + text;
+    if (typeof console !== 'undefined') {
+      console.error(message);
+    }
+    try {
+      // --- Welcome to debugging React ---
+      // This error was thrown as a convenience so that you can use this stack
+      // to find the callsite that caused this warning to fire.
+      throw new Error(message);
+    } catch (x) {}
+  };
+}
+
+function emptyFunctionThatReturnsNull() {
+  return null;
+}
 
 module.exports = function(isValidElement, throwOnDirectAccess) {
   /* global Symbol */
@@ -1624,12 +1500,13 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
       if (secret !== ReactPropTypesSecret) {
         if (throwOnDirectAccess) {
           // New behavior only for users of `prop-types` package
-          invariant(
-            false,
+          var err = new Error(
             'Calling PropTypes validators directly is not supported by the `prop-types` package. ' +
             'Use `PropTypes.checkPropTypes()` to call them. ' +
             'Read more at http://fb.me/use-check-prop-types'
           );
+          err.name = 'Invariant Violation';
+          throw err;
         } else if (process.env.NODE_ENV !== 'production' && typeof console !== 'undefined') {
           // Old behavior for people using React.PropTypes
           var cacheKey = componentName + ':' + propName;
@@ -1638,15 +1515,12 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
             // Avoid spamming the console because they are often not actionable except for lib authors
             manualPropTypeWarningCount < 3
           ) {
-            warning(
-              false,
+            printWarning(
               'You are manually calling a React.PropTypes validation ' +
-              'function for the `%s` prop on `%s`. This is deprecated ' +
+              'function for the `' + propFullName + '` prop on `' + componentName  + '`. This is deprecated ' +
               'and will throw in the standalone `prop-types` package. ' +
               'You may be seeing this warning due to a third-party PropTypes ' +
-              'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.',
-              propFullName,
-              componentName
+              'library. See https://fb.me/react-warning-dont-call-proptypes ' + 'for details.'
             );
             manualPropTypeCallCache[cacheKey] = true;
             manualPropTypeWarningCount++;
@@ -1690,7 +1564,7 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
   }
 
   function createAnyTypeChecker() {
-    return createChainableTypeChecker(emptyFunction.thatReturnsNull);
+    return createChainableTypeChecker(emptyFunctionThatReturnsNull);
   }
 
   function createArrayOfTypeChecker(typeChecker) {
@@ -1740,8 +1614,8 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 
   function createEnumTypeChecker(expectedValues) {
     if (!Array.isArray(expectedValues)) {
-      process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
-      return emptyFunction.thatReturnsNull;
+      process.env.NODE_ENV !== 'production' ? printWarning('Invalid argument supplied to oneOf, expected an instance of array.') : void 0;
+      return emptyFunctionThatReturnsNull;
     }
 
     function validate(props, propName, componentName, location, propFullName) {
@@ -1783,21 +1657,18 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
 
   function createUnionTypeChecker(arrayOfTypeCheckers) {
     if (!Array.isArray(arrayOfTypeCheckers)) {
-      process.env.NODE_ENV !== 'production' ? warning(false, 'Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
-      return emptyFunction.thatReturnsNull;
+      process.env.NODE_ENV !== 'production' ? printWarning('Invalid argument supplied to oneOfType, expected an instance of array.') : void 0;
+      return emptyFunctionThatReturnsNull;
     }
 
     for (var i = 0; i < arrayOfTypeCheckers.length; i++) {
       var checker = arrayOfTypeCheckers[i];
       if (typeof checker !== 'function') {
-        warning(
-          false,
+        printWarning(
           'Invalid argument supplied to oneOfType. Expected an array of check functions, but ' +
-          'received %s at index %s.',
-          getPostfixForTypeWarning(checker),
-          i
+          'received ' + getPostfixForTypeWarning(checker) + ' at index ' + i + '.'
         );
-        return emptyFunction.thatReturnsNull;
+        return emptyFunctionThatReturnsNull;
       }
     }
 
@@ -2008,24 +1879,25 @@ module.exports = function(isValidElement, throwOnDirectAccess) {
   return ReactPropTypes;
 };
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 16 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__Focusable_jsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Grid_jsx__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Grid_jsx__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Grid_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__Grid_jsx__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__Navigation_jsx__);
+/* harmony reexport (default from non-hamory) */ __webpack_require__.d(__webpack_exports__, "default", function() { return __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx___default.a; });
 /* harmony reexport (default from non-hamory) */ __webpack_require__.d(__webpack_exports__, "VerticalList", function() { return __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx___default.a; });
 /* harmony reexport (default from non-hamory) */ __webpack_require__.d(__webpack_exports__, "HorizontalList", function() { return __WEBPACK_IMPORTED_MODULE_2__HorizontalList_jsx___default.a; });
 /* harmony reexport (default from non-hamory) */ __webpack_require__.d(__webpack_exports__, "Grid", function() { return __WEBPACK_IMPORTED_MODULE_3__Grid_jsx___default.a; });
@@ -2036,7 +1908,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-/* harmony default export */ __webpack_exports__["default"] = (__WEBPACK_IMPORTED_MODULE_4__Navigation_jsx___default.a);
 
 
 

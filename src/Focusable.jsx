@@ -20,13 +20,16 @@ class Focusable extends Component {
   }
 
   addChild(child) {
-    //console.log(child);
     this.children.push(child);
     return this.children.length - 1;
   }
 
   removeChild(child) {
     this.children.splice(child.indexInParent, 1);
+
+    for (let i = child.indexInParent; i < this.children.length; ++i) {
+      this.children[i].indexInParent -= 1;
+    }
 
     if (this.props.rootNode) {
       const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
@@ -106,7 +109,7 @@ class Focusable extends Component {
     return {parentFocusable: this};
   }
 
-  componentWillMount() {
+  componentDidMount() {
     if (this.props.rootNode) {
       this.context.navigationComponent.setRoot(this);
     }
@@ -128,7 +131,7 @@ class Focusable extends Component {
   }
 
   render() {
-    const {focused, rootNode, navDefault, onFocus, onBlur, ...props} = this.props;
+    const {navDefault, onFocus, onBlur, onEnterDown, ...props} = this.props;
     return <span {...props}/>
   }
 }

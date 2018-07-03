@@ -26,7 +26,7 @@ class HorizontalList extends Focusable {
   }
 
   render() {
-    const {focused, rootNode, navDefault, onFocus, onBlur, ...props} = this.props;
+    const {navDefault, onFocus, onBlur, onEnterDown, ...props} = this.props;
     return <div {...props}/>
   }
 }

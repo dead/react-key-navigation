@@ -902,7 +902,6 @@
 	    }, {
 	      key: 'addChild',
 	      value: function addChild(child) {
-	        //console.log(child);
 	        this.children.push(child);
 	        return this.children.length - 1;
 	      }
@@ -910,6 +909,10 @@
 	      key: 'removeChild',
 	      value: function removeChild(child) {
 	        this.children.splice(child.indexInParent, 1);
+
+	        for (var i = child.indexInParent; i < this.children.length; ++i) {
+	          this.children[i].indexInParent -= 1;
+	        }
 
 	        if (this.props.rootNode) {
 	          var currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
@@ -1001,8 +1004,8 @@
 	        return { parentFocusable: this };
 	      }
 	    }, {
-	      key: 'componentWillMount',
-	      value: function componentWillMount() {
+	      key: 'componentDidMount',
+	      value: function componentDidMount() {
 	        if (this.props.rootNode) {
 	          this.context.navigationComponent.setRoot(this);
 	        }
@@ -1602,47 +1605,41 @@
 
 	    _createClass(Grid, [{
 	      key: 'getNextFocus',
-	      value: function getNextFocus(direction) {
+	      value: function getNextFocus(direction, focusedIndex) {
 	        if (direction !== 'up' && direction !== 'down') {
-	          return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction);
+	          return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
 	        }
 
-	        var elemIndex = null;
+	        var nextFocus = null;
 	        if (direction === 'up') {
-	          elemIndex = this.previousChild();
+	          nextFocus = this.previousChild(focusedIndex);
 	        } else if (direction === 'down') {
-	          elemIndex = this.nextChild();
+	          nextFocus = this.nextChild(focusedIndex);
 	        }
 
-	        if (elemIndex === null) {
-	          return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction);
+	        if (!nextFocus) {
+	          return _get(Grid.prototype.__proto__ || Object.getPrototypeOf(Grid.prototype), 'getNextFocus', this).call(this, direction, this.indexInParent);
 	        }
 
-	        if (!this._children[elemIndex].isContainer()) {
+	        if (!nextFocus.isContainer()) {
 	          return null;
 	        }
 
-	        var row = elemIndex;
-	        var column = this._focusedChild !== null ? this._children[this._focusedChild]._focusedChild : 0;
+	        var currentPath = this.context.navigationComponent.currentFocusedPath;
 
-	        if (row === null || column === null) {
-	          return null;
+	        var row = nextFocus.indexInParent;
+	        var column = currentPath[currentPath.indexOf(this) + 2].indexInParent;
+
+	        if (this.children[row].children.length <= column) {
+	          column = this.children[row].children.length;
 	        }
 
-	        if (this._children[row]._children.length <= column) {
-	          column = this._children[row]._children.length;
-	        }
-
-	        var next = this._children[row]._children[column];
+	        var next = this.children[row].children[column];
 	        if (next.isContainer()) {
-	          return next.getLeaf();
+	          return next.getDefaultFocus();
 	        }
 
-	        return {
-	          parent: this,
-	          elementIndex: column,
-	          element: next
-	        };
+	        return next;
 	      }
 	    }, {
 	      key: 'render',
@@ -1774,7 +1771,7 @@
 	        if (!direction) {
 	          if (evt.keyCode === _this.props.keyMapping['enter']) {
 	            if (_this.currentFocusedPath) {
-	              if (!_this.fireEvent(_this.currentFocusedPath, 'enter-down')) {
+	              if (!_this.fireEvent(_this.getLastFromPath(_this.currentFocusedPath), 'enter-down')) {
 	                return preventDefault();
 	              }
 	            }
@@ -2713,6 +2710,9 @@
 	  /* harmony import */var __WEBPACK_IMPORTED_MODULE_3__Grid_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__Grid_jsx__);
 	  /* harmony import */var __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx__ = __webpack_require__(11);
 	  /* harmony import */var __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__Navigation_jsx__);
+	  /* harmony reexport (default from non-hamory) */__webpack_require__.d(__webpack_exports__, "default", function () {
+	    return __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx___default.a;
+	  });
 	  /* harmony reexport (default from non-hamory) */__webpack_require__.d(__webpack_exports__, "VerticalList", function () {
 	    return __WEBPACK_IMPORTED_MODULE_1__VerticalList_jsx___default.a;
 	  });
@@ -2725,8 +2725,6 @@
 	  /* harmony reexport (default from non-hamory) */__webpack_require__.d(__webpack_exports__, "Focusable", function () {
 	    return __WEBPACK_IMPORTED_MODULE_0__Focusable_jsx___default.a;
 	  });
-
-	  /* harmony default export */__webpack_exports__["default"] = __WEBPACK_IMPORTED_MODULE_4__Navigation_jsx___default.a;
 
 	  /***/
 	}]

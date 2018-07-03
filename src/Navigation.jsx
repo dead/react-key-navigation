@@ -57,11 +57,6 @@ class Navigation extends Component {
       }
     }
 
-    const willmoveProperties = {
-      direction: direction,
-      cause: 'keydown'
-    };
-
     this.focusNext(direction, currentFocusedPath);
     return preventDefault();
   }
