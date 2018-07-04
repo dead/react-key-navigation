@@ -18,7 +18,7 @@
     "randomstring": "^1.1.5",
     "react": "^16.0.0",
     "react-fontawesome": "^1.6.1",
-    "react-key-navigation": "^0.0.6",
+    "react-key-navigation": "0.0.9",
     "react-tv": "^0.3.0-alpha.2"
   },
   "devDependencies": {

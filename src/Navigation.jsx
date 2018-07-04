@@ -143,13 +143,9 @@ class Navigation extends Component {
   focusDefault() {
     if (this.default !== null) {
       this.focus(this.default);
-    } else {
+    } else if (this.root !== null) {
       this.focus(this.root.getDefaultFocus());
     }
-  }
-
-  setRoot(component) {
-    this.root = component;
   }
 
   setDefault(component) {
@@ -198,14 +194,11 @@ class Navigation extends Component {
   }
 
   render () {
-    const root = (
-      <VerticalList>
+    return (
+      <VerticalList ref={element => this.root = element}>
         {this.props.children}
       </VerticalList>
     );
-
-    this.setRoot(root);
-    return root;
   }
 }
 
