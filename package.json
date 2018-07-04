@@ -1,6 +1,6 @@
 {
   "name": "react-key-navigation",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Use the key to navigate around components",
   "main": "build/index.js",
   "bugs": {
@@ -33,7 +33,7 @@
     "babel-preset-react": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
     "prop-types": "^15.6.2",
-    "webpack": "^2.6.1",
-    "react": "^15.5.4"
+    "react": "^15.5.4",
+    "webpack": "^2.6.1"
   }
 }
