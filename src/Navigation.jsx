@@ -29,7 +29,7 @@ class Navigation extends Component {
       return;
     }
 
-    const preventDefault = function() {
+    const preventDefault = function () {
       evt.preventDefault();
       evt.stopPropagation();
       return false;
@@ -49,6 +49,7 @@ class Navigation extends Component {
     }
 
     let currentFocusedPath = this.currentFocusedPath;
+    console.log('currentFocusedPath', currentFocusedPath);
 
     if (!currentFocusedPath) {
       currentFocusedPath = this.lastFocusedPath;
@@ -64,7 +65,7 @@ class Navigation extends Component {
   }
 
   fireEvent(element, evt, evtProps) {
-    switch(evt) {
+    switch (evt) {
       case 'willmove':
         if (element.props.onWillMove)
           element.props.onWillMove(evtProps);
@@ -87,15 +88,8 @@ class Navigation extends Component {
   }
 
   focusNext(direction, focusedPath) {
-    let next = null;
-
-    if (direction === reverseDirection[this.lastDirection] && this.lastFocusedPath !== null) {
-      next = this.getLastFromPath(this.lastFocusedPath);
-    }
-    else {
-      next = this.getLastFromPath(focusedPath).getNextFocusFrom(direction);
-    }
-
+    const next = this.getLastFromPath(focusedPath).getNextFocusFrom(direction);
+    
     if (next) {
       this.lastDirection = direction;
       this.focus(next);
@@ -143,7 +137,7 @@ class Navigation extends Component {
   focusDefault() {
     if (this.default !== null) {
       this.focus(this.default);
-    } else if (this.root !== null) {
+    } else {
       this.focus(this.root.getDefaultFocus());
     }
   }
@@ -156,13 +150,14 @@ class Navigation extends Component {
     }
   }
 
-  addComponent(component, id=null) {
-    if (!id) {
-      id = 'focusable-' + this.focusableIds++;
+  addComponent(component, id = null) {
+    if (this.focusableComponents[id]) {
+      return id;
+      // throw new Error('Focusable component with id "' + id + '" has already existed!');
     }
 
-    if (this.focusableComponents[id]) {
-      throw new Error('Focusable component with id "' + id + '" has already existed!');
+    if (!id) {
+      id = 'focusable-' + this.focusableIds++;
     }
 
     this.focusableComponents[id] = component;
@@ -177,6 +172,11 @@ class Navigation extends Component {
     this.focus(this.focusableComponents[focusableId].getDefaultFocus());
   }
 
+  removeFocusableId(focusableId) {
+    if (this.focusableComponents[focusableId])
+      delete this.focusableComponents[focusableId]
+  }
+
   // React Functions
   componentDidMount() {
     window.addEventListener('keydown', this.onKeyDown);
@@ -189,16 +189,18 @@ class Navigation extends Component {
     window.removeEventListener('keydown', this.onKeyDown);
   }
 
-  getChildContext() {
-    return {navigationComponent: this};
+  componentWillReceiveProps() {
+    
   }
 
-  render () {
-    return (
-      <VerticalList ref={element => this.root = element}>
-        {this.props.children}
-      </VerticalList>
-    );
+  getChildContext() {
+    return { navigationComponent: this };
+  }
+
+  render() {
+    return <VerticalList ref={element => this.root = element} focusableId='navigation'>
+      {this.props.children}
+    </VerticalList>;
   }
 }
 

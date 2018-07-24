@@ -3,7 +3,11 @@ import Focusable from './Focusable.jsx';
 
 class HorizontalList extends Focusable {
   getNextFocus(direction, focusedIndex) {
+    const remainInFocus = this.props.remainInFocus ? this.props.remainInFocus : false;
+
     if (direction !== 'left' && direction !== 'right') {
+      if (remainInFocus)
+        return null;
       return super.getNextFocus(direction, this.indexInParent);
     }
 
@@ -26,8 +30,8 @@ class HorizontalList extends Focusable {
   }
 
   render() {
-    const {focusId, navDefault, onFocus, onBlur, onEnterDown, ...props} = this.props;
-    return <div {...props}/>
+    const { focusId, navDefault, onFocus, onBlur, onEnterDown, ...props } = this.props;
+    return <div {...props} />
   }
 }
 
