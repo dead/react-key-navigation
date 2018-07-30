@@ -2,3 +2,5 @@
 /build
 npm-debug.log
 yarn*
+
+\.DS_Store

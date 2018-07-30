@@ -26,6 +26,7 @@ class Focusable extends Component {
   }
 
   removeChild(child) {
+    this.context.navigationComponent.removeFocusableId(child.focusableId);
     this.children.splice(child.indexInParent, 1);
 
     for (let i = child.indexInParent; i < this.children.length; ++i) {
@@ -107,9 +108,13 @@ class Focusable extends Component {
     return this.children[focusedIndex - 1];
   }
 
+  getNavigator() {
+    return this.context.navigationComponent;
+  }
+
   // React Methods
   getChildContext() {
-    return {parentFocusable: this};
+    return { parentFocusable: this };
   }
 
   componentDidMount() {
@@ -136,8 +141,8 @@ class Focusable extends Component {
   }
 
   render() {
-    const {focusId, navDefault, onFocus, onBlur, onEnterDown, ...props} = this.props;
-    return <span {...props}/>
+    const { focusId, navDefault, onFocus, onBlur, onEnterDown, ...props } = this.props;
+    return <span {...props} />
   }
 }
 
@@ -146,7 +151,7 @@ Focusable.contextTypes = {
   navigationComponent: PropTypes.object,
 };
 
-Focusable.childContextTypes  = {
+Focusable.childContextTypes = {
   parentFocusable: PropTypes.object,
 };
 

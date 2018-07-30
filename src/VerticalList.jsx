@@ -2,7 +2,11 @@ import Focusable from './Focusable.jsx';
 
 class VerticalList extends Focusable {
   getNextFocus(direction, focusedIndex) {
+    const remainInFocus = this.props.remainInFocus ? this.props.remainInFocus : false;
+
     if (direction !== 'up' && direction !== 'down') {
+      if (remainInFocus)
+        return null;
       return super.getNextFocus(direction, this.indexInParent);
     }
 
