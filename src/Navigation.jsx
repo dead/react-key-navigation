@@ -49,7 +49,7 @@ class Navigation extends Component {
     }
 
     let currentFocusedPath = this.currentFocusedPath;
-    console.log('currentFocusedPath', currentFocusedPath);
+    // console.log('currentFocusedPath', currentFocusedPath);
 
     if (!currentFocusedPath) {
       currentFocusedPath = this.lastFocusedPath;
@@ -187,10 +187,6 @@ class Navigation extends Component {
   componentWillUnmount() {
     window.removeEventListener('keyup', this.onKeyUp);
     window.removeEventListener('keydown', this.onKeyDown);
-  }
-
-  componentWillReceiveProps() {
-    
   }
 
   getChildContext() {

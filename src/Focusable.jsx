@@ -140,6 +140,24 @@ class Focusable extends Component {
     }
   }
 
+  shouldComponentUpdate() {
+    if (this.children.length > 0) {
+      for(let child of this.children) {
+        child.indexInParent = -1;
+      }
+
+      this.children = [];
+    }
+
+    return true;
+  }
+
+  componentDidUpdate() {
+    if (this.context.parentFocusable && this.indexInParent === -1) {
+      this.indexInParent = this.getParent().addChild(this);
+    }
+  }
+
   render() {
     const { focusId, navDefault, onFocus, onBlur, onEnterDown, ...props } = this.props;
     return <span {...props} />

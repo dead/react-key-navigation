@@ -1,6 +1,6 @@
 {
   "name": "react-key-navigation",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Use the key to navigate around components",
   "main": "build/index.js",
   "bugs": {
