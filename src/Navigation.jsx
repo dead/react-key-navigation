@@ -193,6 +193,10 @@ class Navigation extends Component {
     return { navigationComponent: this };
   }
 
+  getRoot() {
+    return this.root;
+  }
+
   render() {
     return <VerticalList ref={element => this.root = element} focusableId='navigation'>
       {this.props.children}
