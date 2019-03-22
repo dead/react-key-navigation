@@ -28,20 +28,12 @@ class Focusable extends Component {
 
   removeChild(child) {
     this.context.navigationComponent.removeFocusableId(child.focusableId);
-    // this.children.splice(child.indexInParent, 1);	
-
-    // for (let i = child.indexInParent; i < this.children.length; ++i) {	
-    //   this.children[i].indexInParent -= 1;	
-    // }
-
     const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
     const index = currentFocusedPath.indexOf(child);
 
     if (index > 0) {
       const next = currentFocusedPath[index - 1].getDefaultFocus();
       this.context.navigationComponent.focus(next);
-    } else {
-      this.context.navigationComponent.focus(this.context.navigationComponent.getRoot());
     }
   }
 
