@@ -7,6 +7,7 @@ class Focusable extends Component {
   indexInParent = 0;
   focusableId = null;
   lastFocusChild = null;
+  updateChildrenOrder = false;
 
   constructor(props, context) {
     super(props, context);
@@ -27,6 +28,12 @@ class Focusable extends Component {
 
   removeChild(child) {
     this.context.navigationComponent.removeFocusableId(child.focusableId);
+    // this.children.splice(child.indexInParent, 1);	
+
+    // for (let i = child.indexInParent; i < this.children.length; ++i) {	
+    //   this.children[i].indexInParent -= 1;	
+    // }
+
     const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
     const index = currentFocusedPath.indexOf(child);
 
@@ -108,6 +115,10 @@ class Focusable extends Component {
     return this.context.navigationComponent;
   }
 
+  refresh() {
+    this.setState({});
+  }
+
   // React Methods
   getChildContext() {
     return { parentFocusable: this };
@@ -117,6 +128,7 @@ class Focusable extends Component {
     if (this.context.parentFocusable) {
       this.buildTreePath();
       this.indexInParent = this.getParent().addChild(this);
+      this.getParent().refresh();
     }
 
     if (this.props.navDefault) {
@@ -138,20 +150,19 @@ class Focusable extends Component {
 
   shouldComponentUpdate() {
     if (this.children.length > 0) {
-      for(let child of this.children) {
-        child.indexInParent = -1;
-      }
-
       this.children = [];
+      this.updateChildrenOrder = true;
+    }
+
+    if (this.context.parentFocusable && this.getParent().updateChildrenOrder) {
+      this.indexInParent = this.getParent().addChild(this);
     }
 
     return true;
   }
 
   componentDidUpdate() {
-    if (this.context.parentFocusable && this.indexInParent === -1) {
-      this.indexInParent = this.getParent().addChild(this);
-    }
+    this.updateChildrenOrder = false;
   }
 
   render() {

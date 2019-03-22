@@ -51,10 +51,10 @@ class Navigation extends Component {
     let currentFocusedPath = this.currentFocusedPath;
     // console.log('currentFocusedPath', currentFocusedPath);
 
-    if (!currentFocusedPath) {
+    if (!currentFocusedPath || currentFocusedPath.length === 0) {
       currentFocusedPath = this.lastFocusedPath;
 
-      if (!currentFocusedPath) {
+      if (!currentFocusedPath || currentFocusedPath.length === 0) {
         //this.focusDefault();
         return preventDefault();
       }
