@@ -3,6 +3,10 @@ import Focusable from './Focusable.jsx';
 import HorizontalList from './HorizontalList.jsx';
 
 class Grid extends Focusable {
+  isContainer() {
+    return true;
+  }
+  
   getNextFocus(direction, focusedIndex) {
     if (direction !== 'up' && direction !== 'down') {
       return super.getNextFocus(direction, this.indexInParent);
@@ -34,7 +38,12 @@ class Grid extends Focusable {
 
     const next = this.children[row].children[column];
     if (next.isContainer()) {
-      return next.getDefaultFocus();
+      if (next.hasChildren()) {
+        return next.getDefaultFocus();
+      }
+      else {
+        return this.getNextFocus(direction, nextFocus.indexInParent);
+      }
     }
 
     return next;

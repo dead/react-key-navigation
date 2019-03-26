@@ -113,6 +113,10 @@ class Navigation extends Component {
       return;
 
     for (let i = changeNode; i < this.currentFocusedPath.length; ++i) {
+      if (this.currentFocusedPath[i].focusableId === null) {
+        continue;
+      }
+
       this.currentFocusedPath[i].blur();
 
       if (i < this.currentFocusedPath.length - 1) {
@@ -122,6 +126,11 @@ class Navigation extends Component {
   }
 
   focus(next) {
+    if (next === null) {
+      console.warn('Trying to focus a null component');
+      return;
+    }
+
     this.blur(next.treePath);
     next.focus();
 
@@ -136,18 +145,14 @@ class Navigation extends Component {
 
   focusDefault() {
     if (this.default !== null) {
-      this.focus(this.default);
+      this.focus(this.default.getDefaultFocus());
     } else {
       this.focus(this.root.getDefaultFocus());
     }
   }
 
   setDefault(component) {
-    if (component.isContainer()) {
-      this.default = component.getDefaultFocus();
-    } else {
-      this.default = component;
-    }
+    this.default = component;
   }
 
   addComponent(component, id = null) {
