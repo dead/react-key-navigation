@@ -8,6 +8,7 @@ class Focusable extends Component {
   focusableId = null;
   lastFocusChild = null;
   updateChildrenOrder = false;
+  updateChildrenOrderNum = 0;
 
   state = {
     focusTo: null
@@ -151,8 +152,14 @@ class Focusable extends Component {
   }
 
   componentDidUpdate() {
-    if (this.context.parentFocusable && this.getParent().updateChildrenOrder) {
-      this.indexInParent = this.getParent().addChild(this);
+    const parent = this.getParent();
+    if (parent && parent.updateChildrenOrder) {
+      if (parent.updateChildrenOrderNum === 0) {
+        parent.children = [];
+      }
+
+      parent.updateChildrenOrderNum++;
+      this.indexInParent = parent.addChild(this);
     }
 
     if (this.state.focusTo !== null) {
@@ -167,8 +174,8 @@ class Focusable extends Component {
     const { focusId, rootNode, navDefault, forceFocus, retainLastFocus, onFocus, onBlur, onEnterDown, ...props } = this.props;
 
     if (this.children.length > 0) {
-      this.children = [];
       this.updateChildrenOrder = true;
+      this.updateChildrenOrderNum = 0;
     }
 
     return <span {...props} />
