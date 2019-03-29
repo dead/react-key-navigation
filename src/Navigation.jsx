@@ -23,6 +23,12 @@ class Navigation extends Component {
   root = null;
   focusableComponents = {};
   focusableIds = 0;
+  supportedKeys = {};
+
+  constructor(props){
+    super(props);
+    this.supportedKeys = props.supportedKeys;
+  }
 
   onKeyDown = (evt) => {
     if (this._pause || evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
@@ -42,6 +48,22 @@ class Navigation extends Component {
         if (this.currentFocusedPath) {
           if (!this.fireEvent(this.getLastFromPath(this.currentFocusedPath), 'enter-down')) {
             return preventDefault();
+          }
+        }
+      }else{
+        
+        if(this.supportedKeys){
+          let keyFound = this.supportedKeys.find(function(item) {
+            return item.code === evt.keyCode;
+          });
+  
+          if(keyFound){
+            // console.log("keyFound", keyFound)
+            if (this.currentFocusedPath) {
+              if (!this.fireEvent(this.getLastFromPath(this.currentFocusedPath), 'supportedKey-down', keyFound.stringValue)) {
+                return preventDefault();
+              }
+            }
           }
         }
       }
@@ -80,6 +102,11 @@ class Navigation extends Component {
         if (element.props.onEnterDown)
           element.props.onEnterDown(evtProps, this);
         break;
+      case 'supportedKey-down':
+        if (element.props.onSupportedKeyDown)
+          element.props.onSupportedKeyDown(evtProps, this);
+        break;
+        
       default:
         return false;
     }
