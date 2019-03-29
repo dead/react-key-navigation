@@ -25,9 +25,21 @@ export default class Search extends React.Component {
     navigation.forceFocus('sidebar');
   }
 
+  onSupportedKeyDown(event, navigation) {
+    console.log('onSupportedKeyDown', event, navigation);
+    
+    if(event === "space"){
+      this.onEnterDown(event, navigation);
+    }else if(event === "esc"){
+      console.log("esc was pressed");
+      navigation.focusDefault();
+    }
+  }
+
+
   render() {
     return (
-      <Focusable onFocus={() => this.onFocus()} onBlur={() => this.onBlur()} onEnterDown={(e, n) => this.onEnterDown(e, n)} navDefault>
+      <Focusable onFocus={() => this.onFocus()} onBlur={() => this.onBlur()} onEnterDown={(e, n) => this.onEnterDown(e, n)} onSupportedKeyDown={(e, n) => this.onSupportedKeyDown(e, n)} navDefault>
         <div class={this.state.active ? 'search-box-placeholder-focus' : ''} id="search-box-placeholder"><i class="fa fa-search"></i></div>
       </Focusable>
     );

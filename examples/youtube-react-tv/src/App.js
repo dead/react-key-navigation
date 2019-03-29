@@ -28,7 +28,7 @@ class ReactTVApp extends React.Component {
 
   render() {
     return (
-      <Navigation>
+      <Navigation supportedKeys={[{code:32, stringValue:"space"}, {code:27, stringValue:"esc"}]}>
         <div id="container">
           <HorizontalList>
             <Sidebar/>
