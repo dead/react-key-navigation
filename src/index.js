@@ -1,13 +1,12 @@
-import Focusable from './Focusable.jsx';
-import VerticalList from './VerticalList.jsx';
-import HorizontalList from './HorizontalList.jsx';
-import Grid from './Grid.jsx';
-import Navigation from './Navigation.jsx';
+import NavigationProvider from './NavigationProvider'
+import Focusable from './Focusable'
+import HorizontalList from './HorizontalList'
+import VerticalList from './VerticalList'
+import Grid from './Grid'
 
 export {
-  Navigation as default,
-  VerticalList,
+  NavigationProvider as default,
   HorizontalList,
-  Grid,
+  VerticalList,
   Focusable
-};
+}
