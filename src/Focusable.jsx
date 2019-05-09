@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 class Focusable extends Component {
   treePath = [];
@@ -12,7 +12,7 @@ class Focusable extends Component {
 
   state = {
     focusTo: null
-  }
+  };
 
   constructor(props, context) {
     super(props, context);
@@ -21,7 +21,7 @@ class Focusable extends Component {
   isContainer() {
     return false;
   }
-  
+
   hasChildren() {
     return this.children.length > 0;
   }
@@ -38,11 +38,15 @@ class Focusable extends Component {
   removeChild(child) {
     this.context.navigationComponent.removeFocusableId(child.focusableId);
 
-    const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
+    const currentFocusedPath = this.context.navigationComponent
+      .currentFocusedPath;
+    if (!currentFocusedPath) {
+      return;
+    }
     const index = currentFocusedPath.indexOf(child);
 
     if (index > 0) {
-      this.setState({ focusTo: currentFocusedPath[index - 1] })
+      this.setState({ focusTo: currentFocusedPath[index - 1] });
     }
   }
 
@@ -71,7 +75,7 @@ class Focusable extends Component {
       if (this.hasChildren()) {
         return this.children[this.getDefaultChild()].getDefaultFocus();
       }
-      
+
       return null;
     }
 
@@ -91,7 +95,10 @@ class Focusable extends Component {
   focus() {
     this.treePath.map(component => {
       if (component.props.onFocus)
-        component.props.onFocus(this.indexInParent, this.context.navigationComponent);
+        component.props.onFocus(
+          this.indexInParent,
+          this.context.navigationComponent
+        );
     });
   }
 
@@ -127,8 +134,11 @@ class Focusable extends Component {
   }
 
   componentDidMount() {
-    this.focusableId = this.context.navigationComponent.addComponent(this, this.props.focusId);
-    
+    this.focusableId = this.context.navigationComponent.addComponent(
+      this,
+      this.props.focusId
+    );
+
     if (this.context.parentFocusable) {
       this.buildTreePath();
       this.indexInParent = this.getParent().addChild(this);
@@ -147,7 +157,7 @@ class Focusable extends Component {
     if (this.context.parentFocusable) {
       this.getParent().removeChild(this);
     }
-    
+
     this.focusableId = null;
   }
 
@@ -163,32 +173,44 @@ class Focusable extends Component {
     }
 
     if (this.state.focusTo !== null) {
-      this.context.navigationComponent.focus(this.state.focusTo.getDefaultFocus());
+      this.context.navigationComponent.focus(
+        this.state.focusTo.getDefaultFocus()
+      );
       this.setState({ focusTo: null });
     }
-    
+
     this.updateChildrenOrder = false;
   }
 
   render() {
-    const { focusId, rootNode, navDefault, forceFocus, retainLastFocus, onFocus, onBlur, onEnterDown, ...props } = this.props;
+    const {
+      focusId,
+      rootNode,
+      navDefault,
+      forceFocus,
+      retainLastFocus,
+      onFocus,
+      onBlur,
+      onEnterDown,
+      ...props
+    } = this.props;
 
     if (this.children.length > 0) {
       this.updateChildrenOrder = true;
       this.updateChildrenOrderNum = 0;
     }
 
-    return <span {...props} />
+    return <span {...props} />;
   }
 }
 
 Focusable.contextTypes = {
   parentFocusable: PropTypes.object,
-  navigationComponent: PropTypes.object,
+  navigationComponent: PropTypes.object
 };
 
 Focusable.childContextTypes = {
-  parentFocusable: PropTypes.object,
+  parentFocusable: PropTypes.object
 };
 
 Focusable.defaultProps = {
