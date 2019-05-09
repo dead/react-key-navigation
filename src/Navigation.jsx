@@ -203,7 +203,7 @@ class Navigation extends Component {
   }
 
   render() {
-    return <VerticalList ref={element => this.root = element} focusableId='navigation'>
+    return <VerticalList ref={element => this.root = element} focusId='navigation'>
       {this.props.children}
     </VerticalList>;
   }
