@@ -39,6 +39,9 @@ class Focusable extends Component {
     this.context.navigationComponent.removeFocusableId(child.focusableId);
 
     const currentFocusedPath = this.context.navigationComponent.currentFocusedPath;
+    if(!currentFocusedPath){
+      return
+    }
     const index = currentFocusedPath.indexOf(child);
 
     if (index > 0) {
