@@ -201,7 +201,8 @@ Focusable.defaultProps = {
   retainLastFocus: false,
   onFocus: PropTypes.function,
   onBlur: PropTypes.function,
-  onEnterDown: PropTypes.function
+  onEnterDown: PropTypes.function,
+  onSupportedKeyDown: PropTypes.function
 };
 
 export default Focusable;
