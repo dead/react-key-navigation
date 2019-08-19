@@ -5,23 +5,25 @@ module.exports = {
   entry: './src/App.js',
   output: {path: __dirname, filename: 'bundle.js'},
   resolveLoader: {
-    root: path.join(__dirname, 'node_modules'),
+    modules: ['node_modules'],
   },
   module: {
-    loaders: [
+    rules: [
       {
         test: /.jsx?$/,
-        loader: 'babel-loader',
         exclude: /node_modules/,
-        query: {
-          presets: ['env', 'react'],
-        },
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react']
+          }
+        }
       },
       {
         test: /\.css$/,
-        loader: 'style!css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]' 
+        loader: 'style!css-loader?modules&importLoaders=1&localIdentName=[name]__[local]___[hash:base64:5]'
       }
-    ],
+    ]
   },
   plugins: [
     new webpack.DefinePlugin({
